@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.cdt.core.language">
+      <language
+            class="org.eclipse.cdt.objc.core.dom.ast.objc.ObjCLanguage"
+            id="objc"
+            name="%language.name.gcc">
+         <contentType id="org.eclipse.cdt.core.cSource"/>
+         <contentType id="org.eclipse.cdt.core.cHeader"/>
+         <contentType id="org.eclipse.cdt.objc.core.mSource"/>
+      </language>
+   </extension>
+
+   <extension point="org.eclipse.core.contenttype.contentTypes">
+	  <!-- declares a content type for ObjC files -->
+      <content-type id="mSource" name="%cSourceName" 
+          base-type="org.eclipse.cdt.core.cSource"
+		  file-extensions="m"          
+          priority="high"/>
+   </extension>
+
+</plugin>
