@@ -15,4 +15,6 @@ Import-Package: org.eclipse.cdt.core.dom,
  org.eclipse.cdt.core.model,
  org.eclipse.cdt.core.parser,
  org.eclipse.cdt.internal.core.dom.parser.c,
- org.eclipse.cdt.internal.core.pdom
+ org.eclipse.cdt.internal.core.pdom,
+ org.eclipse.core.resources
+Bundle-Localization: plugin

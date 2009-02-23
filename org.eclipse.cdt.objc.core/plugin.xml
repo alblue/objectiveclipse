@@ -6,19 +6,37 @@
       <language
             class="org.eclipse.cdt.objc.core.dom.ast.objc.ObjCLanguage"
             id="objc"
-            name="%language.name.gcc">
+            name="%objc.language.name">
          <contentType id="org.eclipse.cdt.core.cSource"/>
          <contentType id="org.eclipse.cdt.core.cHeader"/>
-         <contentType id="org.eclipse.cdt.objc.core.mSource"/>
+         <contentType id="org.eclipse.cdt.objc.core.objcSource"/>
       </language>
    </extension>
 
    <extension point="org.eclipse.core.contenttype.contentTypes">
 	  <!-- declares a content type for ObjC files -->
-      <content-type id="mSource" name="%cSourceName" 
+      <content-type id="objSource" name="%objc.source.name" 
           base-type="org.eclipse.cdt.core.cSource"
 		  file-extensions="m"          
           priority="high"/>
    </extension>
+   
+   <extension
+         id="objcnature"
+         name="%objc.nature.name"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.eclipse.cdt.objc.core.ObjCProjectNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.team.core.fileTypes">
+      <fileTypes
+            type="text"
+            extension="m">
+      </fileTypes>
+   </extension>   
 
 </plugin>
