@@ -22,7 +22,7 @@ import org.eclipse.cdt.core.parser.IParserLogService;
 import org.eclipse.cdt.core.parser.IScanner;
 import org.eclipse.cdt.core.parser.ParserLanguage;
 import org.eclipse.cdt.core.parser.ParserMode;
-import org.eclipse.cdt.objc.core.Activator;
+import org.eclipse.cdt.objc.core.ObjCPlugin;
 
 public class ObjCLanguage extends AbstractCLikeLanguage {
 
@@ -32,7 +32,7 @@ public class ObjCLanguage extends AbstractCLikeLanguage {
             .getInstance();
     private static final ObjCLanguage DEFAULT_INSTANCE = new ObjCLanguage();
 
-    public static final String ID = Activator.PLUGIN_ID + ".objc"; //$NON-NLS-1$ 
+    public static final String ID = ObjCPlugin.PLUGIN_ID + ".objc"; //$NON-NLS-1$ 
 
     public static ObjCLanguage getDefault() {
         return DEFAULT_INSTANCE;

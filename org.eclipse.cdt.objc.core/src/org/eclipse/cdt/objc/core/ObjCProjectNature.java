@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class ObjCProjectNature implements IProjectNature {
 
-    public static final String OBJC_NATURE_ID = Activator.PLUGIN_ID + ".objcnature"; //$NON-NLS-1$
+    public static final String OBJC_NATURE_ID = ObjCPlugin.PLUGIN_ID + ".objcnature"; //$NON-NLS-1$
 
     /**
      * Utility method for adding a nature to a project.

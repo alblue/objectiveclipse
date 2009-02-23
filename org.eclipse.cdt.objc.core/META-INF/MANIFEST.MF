@@ -3,9 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: ObjectivEClipse Core Plug-in
 Bundle-SymbolicName: org.eclipse.cdt.objc.core;singleton:=true
 Bundle-Version: 1.0.0
-Bundle-Activator: org.eclipse.cdt.objc.core.Activator
+Bundle-Activator: org.eclipse.cdt.objc.core.ObjCPlugin
 Require-Bundle: org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
+Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.eclipse.cdt.core.dom,
  org.eclipse.cdt.core.dom.ast,
@@ -18,3 +19,4 @@ Import-Package: org.eclipse.cdt.core.dom,
  org.eclipse.cdt.internal.core.pdom,
  org.eclipse.core.resources
 Bundle-Localization: plugin
+Export-Package: org.eclipse.cdt.objc.core
