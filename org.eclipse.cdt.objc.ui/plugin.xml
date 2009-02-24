@@ -18,5 +18,46 @@
          </description>
       </wizard>
    </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/objc_ovr.gif"
+            id="org.eclipse.cdt.objc.ui.objcNatureImage"
+            natureId="org.eclipse.cdt.objc.core.objcnature">
+      </image>
+   </extension>
+      <extension 
+      point="org.eclipse.ui.editors">
+      <editor
+         default="true"
+         name="Objective-C"
+         icon="icons/m_obj.gif"
+         class="org.eclipse.cdt.objc.ui.editor.Editor"
+         id="org.eclipse.cdt.objc.ui.ObjCSourceEditor">
+            <contentTypeBinding contentTypeId="org.eclipse.cdt.objc.ui.objcSource"/>
+      </editor>
+      <editor
+         default="false"
+         name="Objective-C"
+         icon="icons/h_obj.gif"
+         class="org.eclipse.cdt.objc.ui.editor.Editor"
+         id="org.eclipse.cdt.objc.ui.ObjCHeaderEditor">
+            <contentTypeBinding contentTypeId="org.eclipse.cdt.objc.ui.objcHeader"/>
+      </editor>
+   </extension>
+      <extension
+            point="org.eclipse.core.filebuffers.documentSetup">
+         <participant
+               class="org.eclipse.cdt.objc.ui.editor.DocumentSetupParticipant"
+               contentTypeId="org.eclipse.cdt.objc.ui.objcSource">
+         </participant>
+      </extension>
+      <extension
+            point="org.eclipse.core.filebuffers.documentSetup">
+         <participant
+               class="org.eclipse.cdt.objc.ui.editor.DocumentSetupParticipant"
+               contentTypeId="org.eclipse.cdt.objc.ui.objcHeader">
+         </participant>
+      </extension>
 
 </plugin>
