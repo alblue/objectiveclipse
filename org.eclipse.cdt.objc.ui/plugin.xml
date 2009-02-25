@@ -9,7 +9,7 @@
              class="org.eclipse.cdt.objc.ui.wizards.ObjCProjectWizard"
              finalPerspective="org.eclipse.cdt.ui.CPerspective"
              hasPages="true"
-             icon="icons/elcl16/newmngcc_app.gif"
+             icon="icons/objc_ovr.gif"
              id="org.eclipse.cdt.objc.ui.wizards.ObjCProjectWizard"
              name="%objc.project.name"
              project="true">
