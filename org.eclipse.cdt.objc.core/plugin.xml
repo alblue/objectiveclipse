@@ -21,13 +21,13 @@
         priority="high"/>
      <!-- declares a content type for C header files -->
       <content-type id="objcHeader" name="%objc.header.name" 
-          base-type="org.eclipse.cdt.objc.ui.objcSource"
+          base-type="org.eclipse.cdt.objc.core.objcSource"
           priority="high"/>
       <file-association 
-       content-type="org.eclipse.cdt.objc.ui.objcSource"
+       content-type="org.eclipse.cdt.objc.core.objcSource"
        file-extensions="m"/>
       <file-association 
-       content-type="org.eclipse.cdt.objc.ui.objcHeader"
+       content-type="org.eclipse.cdt.objc.core.objcHeader"
        file-extensions="h,pch"/>
    </extension> 
    

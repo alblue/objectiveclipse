@@ -34,7 +34,7 @@
          icon="icons/m_obj.gif"
          class="org.eclipse.cdt.objc.ui.editor.Editor"
          id="org.eclipse.cdt.objc.ui.ObjCSourceEditor">
-            <contentTypeBinding contentTypeId="org.eclipse.cdt.objc.ui.objcSource"/>
+            <contentTypeBinding contentTypeId="org.eclipse.cdt.objc.core.objcSource"/>
       </editor>
       <editor
          default="false"
@@ -42,21 +42,21 @@
          icon="icons/h_obj.gif"
          class="org.eclipse.cdt.objc.ui.editor.Editor"
          id="org.eclipse.cdt.objc.ui.ObjCHeaderEditor">
-            <contentTypeBinding contentTypeId="org.eclipse.cdt.objc.ui.objcHeader"/>
+            <contentTypeBinding contentTypeId="org.eclipse.cdt.objc.core.objcHeader"/>
       </editor>
    </extension>
       <extension
             point="org.eclipse.core.filebuffers.documentSetup">
          <participant
                class="org.eclipse.cdt.objc.ui.editor.DocumentSetupParticipant"
-               contentTypeId="org.eclipse.cdt.objc.ui.objcSource">
+               contentTypeId="org.eclipse.cdt.objc.core.objcSource">
          </participant>
       </extension>
       <extension
             point="org.eclipse.core.filebuffers.documentSetup">
          <participant
                class="org.eclipse.cdt.objc.ui.editor.DocumentSetupParticipant"
-               contentTypeId="org.eclipse.cdt.objc.ui.objcHeader">
+               contentTypeId="org.eclipse.cdt.objc.core.objcHeader">
          </participant>
       </extension>
 
