@@ -5,22 +5,29 @@
          point="org.eclipse.cdt.core.language">
       <language
             class="org.eclipse.cdt.objc.core.dom.ast.objc.ObjCLanguage"
-            id="objc"
+            id="org.eclipse.cdt.objc.core.objcLanguage"
             name="%objc.language.name">
-         <contentType id="org.eclipse.cdt.core.cSource"/>
-         <contentType id="org.eclipse.cdt.core.cHeader"/>
+         <contentType id="org.eclipse.cdt.objc.core.objcHeader"/>
          <contentType id="org.eclipse.cdt.objc.core.objcSource"/>
       </language>
    </extension>
 
    <extension point="org.eclipse.core.contenttype.contentTypes">
 	  <!-- declares a content type for ObjC files -->
-      <content-type id="objSource" name="%objc.source.name" 
+      <content-type id="org.eclipse.cdt.objc.core.objcSource" name="%objc.source.name" 
           base-type="org.eclipse.cdt.core.cSource"
 		  file-extensions="m"          
           priority="high"/>
    </extension>
    
+   <extension point="org.eclipse.core.contenttype.contentTypes">
+	  <!-- declares a content type for ObjC files -->
+      <content-type id="org.eclipse.cdt.objc.core.objcHeader" name="%objc.header.name" 
+          base-type="org.eclipse.cdt.objc.core.objcSource"
+		  file-extensions="h"          
+          priority="high"/>
+   </extension>
+
    <extension
          id="objcnature"
          name="%objc.nature.name"
@@ -39,4 +46,46 @@
       </fileTypes>
    </extension>   
 
+	<!-- Managed Make Builder Tool Specifications ->
+   <extension
+         id="objc.cdt.managed.build.info"
+         name="Managed Build Tools Description"
+         point="org.eclipse.cdt.managedbuilder.core.buildDefinitions">
+      <managedBuildRevision
+            fileVersion="4.0.0">
+      </managedBuildRevision>
+<!-
+      <tool
+          id="cdt.managedbuild.tool.gnu.objc.linker"
+          name="%objc.linker"
+          superClass="cdt.managedbuild.tool.gnu.c.linker">
+          <envVarBuildPath 
+              pathType="buildpathLibrary"
+              variableList="LIBRARY_PATH"
+              buildPathResolver="org.eclipse.cdt.managedbuilder.gnu.cygwin.CygwinPathResolver">
+          </envVarBuildPath>
+          <!- frameworks should live here ->
+      </tool>
+    ->
+      <tool
+          id="cdt.managedbuild.tool.gnu.objc.compiler"
+          name="%objc.compiler.name"
+          superClass="cdt.managedbuild.tool.gnu.c.compiler">
+          <envVarBuildPath 
+              pathType="buildpathInclude"
+              variableList="CPATH,C_INCLUDE_PATH"
+              buildPathResolver="org.eclipse.cdt.managedbuilder.gnu.cygwin.CygwinPathResolver">
+          </envVarBuildPath>
+          <inputType
+              sourceContentType="org.eclipse.cdt.objc.core.objcSource"
+		      sources="m"
+              dependencyContentType="org.eclipse.cdt.core.cHeader"
+			  dependencyExtensions="h"
+			  dependencyCalculator="org.eclipse.cdt.managedbuilder.makegen.gnu.DefaultGCCDependencyCalculator2"
+              id="cdt.managedbuild.tool.gnu.objc.compiler.input"
+              scannerConfigDiscoveryProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC|org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile"
+              languageId="org.eclipse.cdt.core.gcc">
+          </inputType>
+      </tool>      
+</extension> -->
 </plugin>

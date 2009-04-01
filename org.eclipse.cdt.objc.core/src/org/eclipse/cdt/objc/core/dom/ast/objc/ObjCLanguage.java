@@ -12,6 +12,7 @@
 package org.eclipse.cdt.objc.core.dom.ast.objc;
 
 import org.eclipse.cdt.core.dom.ICodeReaderFactory;
+import org.eclipse.cdt.core.dom.ILinkage;
 import org.eclipse.cdt.core.dom.ast.IASTCompletionNode;
 import org.eclipse.cdt.core.dom.ast.IASTName;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
@@ -22,13 +23,10 @@ import org.eclipse.cdt.core.model.ITranslationUnit;
 import org.eclipse.cdt.core.parser.CodeReader;
 import org.eclipse.cdt.core.parser.IParserLogService;
 import org.eclipse.cdt.core.parser.IScannerInfo;
+import org.eclipse.cdt.objc.core.ObjCPlugin;
 import org.eclipse.core.runtime.CoreException;
 
 public class ObjCLanguage extends AbstractLanguage {
-
-    public ObjCLanguage() {
-        // TODO Auto-generated constructor stub
-    }
 
     public IContributedModelBuilder createModelBuilder(ITranslationUnit tu) {
         // TODO Auto-generated method stub
@@ -49,13 +47,11 @@ public class ObjCLanguage extends AbstractLanguage {
     }
 
     public String getId() {
-        // TODO Auto-generated method stub
-        return null;
+        return ObjCPlugin.PLUGIN_ID + ".objcLanguage"; //$NON-NLS-1$
     }
 
     public int getLinkageID() {
-        // TODO Auto-generated method stub
-        return 0;
+        return ILinkage.OBJC_LINKAGE_ID;
     }
 
     public IASTName[] getSelectedNames(IASTTranslationUnit ast, int start, int length) {
