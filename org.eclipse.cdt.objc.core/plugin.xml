@@ -46,7 +46,7 @@
       </fileTypes>
    </extension>   
 
-	<!-- Managed Make Builder Tool Specifications ->
+	<!-- Managed Make Builder Tool Specifications -->
    <extension
          id="objc.cdt.managed.build.info"
          name="Managed Build Tools Description"
@@ -54,28 +54,68 @@
       <managedBuildRevision
             fileVersion="4.0.0">
       </managedBuildRevision>
-<!-
       <tool
+          natureFilter="objcnature"         
           id="cdt.managedbuild.tool.gnu.objc.linker"
-          name="%objc.linker"
-          superClass="cdt.managedbuild.tool.gnu.c.linker">
-          <envVarBuildPath 
-              pathType="buildpathLibrary"
-              variableList="LIBRARY_PATH"
-              buildPathResolver="org.eclipse.cdt.managedbuilder.gnu.cygwin.CygwinPathResolver">
-          </envVarBuildPath>
-          <!- frameworks should live here ->
+          name="%objc.linker.name"
+          superClass="cdt.managedbuild.tool.macosx.c.linker">
+    <optionCategory
+               owner="cdt.managedbuild.tool.gnu.objc.linker"
+               name="%objc.frameworks.name"
+               id="cdt.managedbuild.tool.gnu.objc.linker.thouhgts">
+         </optionCategory>
+         <option
+               name="%objc.frameworks.name"
+               category="cdt.managedbuild.tool.gnu.objc.linker.thouhgts"
+               command="-framework ${VALUE}"
+               id="cdt.managedbuild.tool.gnu.objc.linker.framework"
+               valueType="stringList">
+         </option>
+<!-- Need to put this in both compile/linker some how
+          <optionCategory
+               owner="cdt.managedbuild.tool.gnu.objc.compiler"
+               name="%gcc.architectures.name"
+               id="cdt.managedbuild.tool.gnu.objc.linker.architecture">
+          </optionCategory>
+          <option
+               name="%gcc.architectures.i386.name"
+               category="cdt.managedbuild.tool.gnu.objc.linker.architecture"
+               command="-arch i386"
+               default="false"
+               id="cdt.managedbuild.tool.gnu.objc.linker.architecture.i386"
+               valueType="boolean">
+          </option>    
+          <option
+               name="%gcc.architectures.x86_64.name"
+               category="cdt.managedbuild.tool.gnu.objc.linker.architecture"
+               command="-arch x86_64"
+               default="false"
+               id="cdt.managedbuild.tool.gnu.objc.linker.architecture.x86_64"
+               valueType="boolean">
+          </option>    
+          <option
+               name="%gcc.architectures.ppc.name"
+               category="cdt.managedbuild.tool.gnu.objc.linker.architecture"
+               command="-arch ppc"
+               default="false"
+               id="cdt.managedbuild.tool.gnu.objc.linker.architecture.ppc"
+               valueType="boolean">
+          </option>    
+          <option
+               name="%gcc.architectures.ppc64.name"
+               category="cdt.managedbuild.tool.gnu.objc.linker.architecture"
+               command="-arch ppc64"
+               default="false"
+               id="cdt.managedbuild.tool.gnu.objc.linker.architecture.ppc64"
+               valueType="boolean">
+          </option>    
+-->
       </tool>
-    ->
       <tool
+          natureFilter="objcnature"
           id="cdt.managedbuild.tool.gnu.objc.compiler"
           name="%objc.compiler.name"
           superClass="cdt.managedbuild.tool.gnu.c.compiler">
-          <envVarBuildPath 
-              pathType="buildpathInclude"
-              variableList="CPATH,C_INCLUDE_PATH"
-              buildPathResolver="org.eclipse.cdt.managedbuilder.gnu.cygwin.CygwinPathResolver">
-          </envVarBuildPath>
           <inputType
               sourceContentType="org.eclipse.cdt.objc.core.objcSource"
 		      sources="m"
@@ -87,5 +127,73 @@
               languageId="org.eclipse.cdt.core.gcc">
           </inputType>
       </tool>      
-</extension> -->
+<!-- This should define an ObjC chain which supplies the ObjC linker by default
+               <toolChain
+                     archList="all"
+                     osList="macosx"
+                     name="FoobarChain"
+                     targetTool="cdt.managedbuild.tool.macosx.c.linker.macosx.base;cdt.managedbuild.tool.macosx.cpp.linker.macosx.base;cdt.managedbuild.tool.gnu.archiver"
+                     id="cdt.managedbuild.toolchain.gnu.macosx.base">
+                  <targetPlatform
+					  id="cdt.managedbuild.target.gnu.platform.macosx.base"
+				 	  name="%PlatformName.Dbg"
+                      binaryParser="org.eclipse.cdt.core.MachO"
+					  osList="macosx"					  
+					  archList="all">
+				  </targetPlatform>
+				  <builder
+					  superClass="cdt.managedbuild.target.gnu.builder"
+				      id="cdt.managedbuild.target.gnu.builder.macosx.base">
+		     	  </builder>    
+				  
+				  <tool
+				      id="cdt.managedbuild.tool.macosx.c.linker.macosx.base"
+					  superClass="cdt.managedbuild.tool.macosx.c.linker">
+	             <enablement 
+              	type="CMD_USAGE">
+              	<not>
+			  	<checkBuildProperty 
+			  		property="org.eclipse.cdt.build.core.buildArtefactType"
+			  		value="org.eclipse.cdt.build.core.buildArtefactType.staticLib"/>
+			  	</not>
+			  </enablement>
+				  </tool>
+				  <tool
+					  id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.base"
+					  superClass="cdt.managedbuild.tool.macosx.cpp.linker">
+	             <enablement 
+              	type="CMD_USAGE">
+              	<not>
+			  	<checkBuildProperty 
+			  		property="org.eclipse.cdt.build.core.buildArtefactType"
+			  		value="org.eclipse.cdt.build.core.buildArtefactType.staticLib"/>
+			  	</not>
+			  </enablement>
+				  </tool>    
+				  <tool
+					  id="cdt.managedbuild.tool.gnu.assembler.macosx.base"
+					  superClass="cdt.managedbuild.tool.gnu.assembler">
+				  </tool> 		               		         
+			      <tool
+		    		  id="cdt.managedbuild.tool.gnu.archiver.macosx.base"
+			          superClass="cdt.managedbuild.tool.gnu.archiver">
+			  <enablement 
+              	type="ALL">
+			  	<checkBuildProperty 
+			  		property="org.eclipse.cdt.build.core.buildArtefactType"
+			  		value="org.eclipse.cdt.build.core.buildArtefactType.staticLib"/>
+			  </enablement>
+				  </tool>                 
+                  <tool
+                      id="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.base"
+                      superClass="cdt.managedbuild.tool.gnu.cpp.compiler">
+                  </tool>
+                  <tool
+					  id="cdt.managedbuild.tool.gnu.c.compiler.macosx.base"
+                      superClass="cdt.managedbuild.tool.gnu.c.compiler">
+                  </tool>
+               </toolChain>
+-->
+    </extension>
+
 </plugin>
