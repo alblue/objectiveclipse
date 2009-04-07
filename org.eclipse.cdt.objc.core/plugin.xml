@@ -64,7 +64,7 @@
                name="%objc.frameworks.name"
                id="cdt.managedbuild.tool.gnu.objc.linker.thouhgts">
          </optionCategory>
-         <option
+         <option 
                name="%objc.frameworks.name"
                category="cdt.managedbuild.tool.gnu.objc.linker.thouhgts"
                command="-framework ${VALUE}"
