@@ -31,7 +31,7 @@ import org.eclipse.cdt.core.parser.ParserLanguage;
 import org.eclipse.cdt.core.parser.ParserMode;
 import org.eclipse.cdt.objc.core.ObjCPlugin;
 import org.eclipse.cdt.objc.core.dom.parser.objc.ObjCScannerExtensionConfiguration;
-import org.eclipse.cdt.objc.core.internal.core.dom.parser.GNUObjCSourceParser;
+import org.eclipse.cdt.objc.core.internal.dom.parser.objc.GNUObjCSourceParser;
 import org.eclipse.core.runtime.CoreException;
 
 public class ObjCLanguage extends AbstractCLikeLanguage {

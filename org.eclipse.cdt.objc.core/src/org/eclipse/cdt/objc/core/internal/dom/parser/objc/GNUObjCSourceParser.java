@@ -1,6 +1,6 @@
-package org.eclipse.cdt.objc.core.internal.core.dom.parser;
+package org.eclipse.cdt.objc.core.internal.dom.parser.objc;
 
-import org.eclipse.cdt.core.dom.ast.IASTDeclaration;
+import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTExpression;
 import org.eclipse.cdt.core.dom.ast.IASTLiteralExpression;
 import org.eclipse.cdt.core.dom.ast.IASTName;
@@ -35,16 +35,33 @@ public class GNUObjCSourceParser extends GNUCSourceParser {
     }
 
     @Override
-    protected IASTDeclaration declaration(final DeclarationOptions declOption) throws EndOfFileException,
-            BacktrackException {
+    protected IASTDeclSpecifier declSpecifierSeq(final DeclarationOptions declOption)
+            throws BacktrackException, EndOfFileException, FoundDeclaratorException,
+            FoundAggregateInitializer {
         switch (LT(1)) {
+            case IToken.tIDENTIFIER:
+                IToken t = LA(1);
+                String i = t.getImage();
+                if (i.startsWith("@")) { //$NON-NLS-1$
+                    boolean isInterface = "@interface".equals(i); //$NON-NLS-1$
+                    boolean isImplementation = "@implementation".equals(i); //$NON-NLS-1$
+                    boolean isProtocol = "@protocol".equals(i); //$NON-NLS-1$
+                    if (isInterface || isImplementation || isProtocol) {
+                        System.err.println("We're in an interface!");
+                        consume();
+                        return null; // TODO Further impl needed here
+                        // return typeDeclaration(declOption, isInterface,
+                        // isImplementation, isProtocol);
+                    }
+                }
+                break;
             // ObjC static/instance method calls
-            case IToken.tPLUS:
-            case IToken.tMINUS:
-                System.err.println("Woo! Found a plus/minus");
-                return null;
+            // case IToken.tPLUS:
+            // case IToken.tMINUS:
+            // System.err.println("Woo! Found a plus/minus");
+            // return null;
         }
-        return super.declaration(declOption);
+        return super.declSpecifierSeq(declOption);
     }
 
     // FIXME this is fugly stuff, but it is a starting point
