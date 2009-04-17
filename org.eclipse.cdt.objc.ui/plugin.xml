@@ -18,5 +18,13 @@
          </description>
       </wizard>
    </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/ovr16/m_ovr.png"
+            natureId="org.eclipse.cdt.objc.core.objcnature"
+            id="org.eclipse.cdt.objc.ui.ObjCProjectNatureImage">
+      </image>
+   </extension>
 
 </plugin>
