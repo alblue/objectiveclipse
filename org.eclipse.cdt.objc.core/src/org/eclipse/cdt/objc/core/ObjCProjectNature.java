@@ -41,8 +41,8 @@ public class ObjCProjectNature implements IProjectNature {
                 }
             }
             String[] newNatures = new String[prevNatures.length + 1];
-            System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
-            newNatures[prevNatures.length] = natureId;
+            System.arraycopy(prevNatures, 0, newNatures, 1, prevNatures.length);
+            newNatures[0] = natureId;
             description.setNatureIds(newNatures);
             project.setDescription(description, monitor);
         } finally {

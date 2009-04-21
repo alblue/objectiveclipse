@@ -20,8 +20,8 @@ public class ObjCProjectWizard extends CDTCommonProjectWizard {
 
         try {
             continueCreationMonitor.beginTask(UIMessages.getString("CProjectWizard.0"), 2); //$NON-NLS-1$
-            CProjectNature.addCNature(prj, new SubProgressMonitor(continueCreationMonitor, 1));
             ObjCProjectNature.addObjCNature(prj, new SubProgressMonitor(continueCreationMonitor, 1));
+            CProjectNature.addCNature(prj, new SubProgressMonitor(continueCreationMonitor, 1));
         } catch (CoreException e) {
         } finally {
             continueCreationMonitor.done();
