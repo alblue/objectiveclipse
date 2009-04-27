@@ -88,9 +88,6 @@
 			<tool id="cdt.managedbuild.tool.macosx.objc.compiler.macosx.base"
 				superClass="cdt.managedbuild.tool.macosx.objc.compiler">
 			</tool>
-			<tool id="cdt.managedbuild.tool.gnu.objc.compiler.macosx.base"
-				superClass="cdt.managedbuild.tool.gnu.c.compiler">
-			</tool>
 		</toolChain>
 	</extension>
 </plugin>
