@@ -49,6 +49,7 @@
 				category="cdt.managedbuild.tool.macosx.objc.linker.frameworks"
 				command="-framework ${VALUE}" id="cdt.managedbuild.tool.macosx.objc.linker.framework"
 				valueType="stringList">
+				<listOptionValue value="Foundation"/>
 			</option>
 		</tool>
 		<tool natureFilter="objcnature" id="cdt.managedbuild.tool.macosx.objc.compiler"
@@ -71,8 +72,7 @@
 			</targetPlatform>
 			<builder superClass="cdt.managedbuild.target.gnu.builder"
 				id="cdt.managedbuild.target.gnu.builder.objc.macosx.base">
-			</builder>
-
+			</builder> 
 			<tool id="cdt.managedbuild.tool.macosx.objc.linker.macosx.base"
 				superClass="cdt.managedbuild.tool.macosx.objc.linker">
 				<enablement type="CMD_USAGE">
@@ -85,7 +85,7 @@
 			<tool id="cdt.managedbuild.tool.gnu.assembler.macosx.base.2"
 				superClass="cdt.managedbuild.tool.gnu.assembler">
 			</tool>
-			<tool id="cdt.managedbuild.tool.macosx.objc.compiler.macosx.base"
+ 			<tool id="cdt.managedbuild.tool.macosx.objc.compiler.macosx.base"
 				superClass="cdt.managedbuild.tool.macosx.objc.compiler">
 			</tool>
 		</toolChain>
