@@ -102,7 +102,7 @@
 					id="cdt.managedbuild.toolchain.gnu.obj.exe.debug">
 					<targetPlatform
 						id="objc.cdt.managedbuild.target.gnu.obj.platform.exe.debug"
-						superClass="cdt.managedbuild.target.gnu.platform.base">
+						superClass="cdt.managedbuild.target.gnu.platform.macosx.base">
 					</targetPlatform>
 					<builder superClass="cdt.managedbuild.target.gnu.builder.base"
 						id="objc.cdt.managedbuild.target.gnu.obj.builder.exe.debug">
@@ -117,7 +117,7 @@
 					id="cdt.managedbuild.toolchain.gnu.objc.macosx.release">
 					<targetPlatform
 						id="cdt.managedbuild.target.gnu.objc.platform.exe.release"
-						superClass="cdt.managedbuild.target.gnu.platform.base">
+						superClass="cdt.managedbuild.target.gnu.platform.macosx.base">
 					</targetPlatform>
 					<builder superClass="cdt.managedbuild.target.gnu.builder.base"
 						id="cdt.managedbuild.target.gnu.objc.builder.exe.release">
