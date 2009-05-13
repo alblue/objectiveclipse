@@ -40,8 +40,9 @@
 		point="org.eclipse.cdt.managedbuilder.core.buildDefinitions">
 		<managedBuildRevision fileVersion="4.0.0">
 		</managedBuildRevision>
-		<tool natureFilter="objcnature" id="cdt.managedbuild.tool.macosx.objc.linker"
-			name="%objc.linker.name" superClass="cdt.managedbuild.tool.macosx.c.linker">
+		<!-- natureFilter="objcnature" -->
+		<tool id="cdt.managedbuild.tool.macosx.objc.linker" name="%objc.linker.name"
+			superClass="cdt.managedbuild.tool.macosx.c.linker">
 			<optionCategory owner="cdt.managedbuild.tool.macosx.objc.linker"
 				name="%objc.frameworks.name" id="cdt.managedbuild.tool.macosx.objc.linker.frameworks">
 			</optionCategory>
@@ -49,11 +50,12 @@
 				category="cdt.managedbuild.tool.macosx.objc.linker.frameworks"
 				command="-framework ${VALUE}" id="cdt.managedbuild.tool.macosx.objc.linker.framework"
 				valueType="stringList">
-				<listOptionValue value="Foundation"/>
+				<listOptionValue value="Foundation" />
 			</option>
 		</tool>
-		<tool natureFilter="objcnature" id="cdt.managedbuild.tool.macosx.objc.compiler"
-			name="%objc.compiler.name" superClass="cdt.managedbuild.tool.gnu.c.compiler">
+		<!-- natureFilter="objcnature" -->
+		<tool id="cdt.managedbuild.tool.macosx.objc.compiler" name="%objc.compiler.name"
+			superClass="cdt.managedbuild.tool.gnu.c.compiler">
 			<inputType sourceContentType="org.eclipse.cdt.objc.core.objcSource"
 				sources="m" dependencyContentType="org.eclipse.cdt.core.cHeader"
 				dependencyExtensions="h"
@@ -72,7 +74,7 @@
 			</targetPlatform>
 			<builder superClass="cdt.managedbuild.target.gnu.builder"
 				id="cdt.managedbuild.target.gnu.builder.objc.macosx.base">
-			</builder> 
+			</builder>
 			<tool id="cdt.managedbuild.tool.macosx.objc.linker.macosx.base"
 				superClass="cdt.managedbuild.tool.macosx.objc.linker">
 				<enablement type="CMD_USAGE">
@@ -85,9 +87,52 @@
 			<tool id="cdt.managedbuild.tool.gnu.assembler.macosx.base.2"
 				superClass="cdt.managedbuild.tool.gnu.assembler">
 			</tool>
- 			<tool id="cdt.managedbuild.tool.macosx.objc.compiler.macosx.base"
+			<tool id="cdt.managedbuild.tool.macosx.objc.compiler.macosx.base"
 				superClass="cdt.managedbuild.tool.macosx.objc.compiler">
 			</tool>
 		</toolChain>
+		<projectType isAbstract="false" isTest="false"
+			buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe"
+			id="objc.cdt.managedbuild.target.gnu.exe">
+			<configuration name="Debug"
+				id="objc.cdt.managedbuild.config.gnu.exe.debug"
+				buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug"
+				parent="cdt.managedbuild.config.gnu.base" cleanCommand="rm -rf">
+				<toolChain superClass="cdt.managedbuild.toolchain.gnu.objc.macosx.base"
+					id="cdt.managedbuild.toolchain.gnu.obj.exe.debug">
+					<targetPlatform
+						id="objc.cdt.managedbuild.target.gnu.obj.platform.exe.debug"
+						superClass="cdt.managedbuild.target.gnu.platform.base">
+					</targetPlatform>
+					<builder superClass="cdt.managedbuild.target.gnu.builder.base"
+						id="objc.cdt.managedbuild.target.gnu.obj.builder.exe.debug">
+					</builder>
+				</toolChain>
+			</configuration>
+			<configuration name="Release"
+				id="objc.cdt.managedbuild.config.gnu.exe.release"
+				buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release"
+				parent="cdt.managedbuild.config.gnu.base" cleanCommand="rm -rf">
+				<toolChain superClass="cdt.managedbuild.toolchain.gnu.objc.macosx.base"
+					id="cdt.managedbuild.toolchain.gnu.objc.macosx.release">
+					<targetPlatform
+						id="cdt.managedbuild.target.gnu.objc.platform.exe.release"
+						superClass="cdt.managedbuild.target.gnu.platform.base">
+					</targetPlatform>
+					<builder superClass="cdt.managedbuild.target.gnu.builder.base"
+						id="cdt.managedbuild.target.gnu.objc.builder.exe.release">
+					</builder>
+				</toolChain>
+			</configuration>
+		</projectType>
+	</extension>
+	<extension point="org.eclipse.cdt.core.templateAssociations">
+		<template id="org.eclipse.cdt.build.core.templates.EmptyProject">
+			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.macosx.base" />
+		</template>
+		<template
+			id="org.eclipse.cdt.build.core.templates.HelloWorldCAnsiProject">
+			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.macosx.base" />
+		</template>
 	</extension>
 </plugin>
