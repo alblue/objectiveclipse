@@ -127,12 +127,23 @@
 		</projectType>
 	</extension>
 	<extension point="org.eclipse.cdt.core.templateAssociations">
+		<template id="org.eclipse.cdt.build.core.templates.objc.HelloWorldObjCProject">
+			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.macosx.base" />
+		</template>
 		<template id="org.eclipse.cdt.build.core.templates.EmptyProject">
 			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.macosx.base" />
 		</template>
 		<template
 			id="org.eclipse.cdt.build.core.templates.HelloWorldCAnsiProject">
 			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.macosx.base" />
+		</template>
+	</extension>
+	<extension point="org.eclipse.cdt.core.templates">
+		<!-- filterPattern=".*g\+\+" -->
+		<template
+			id="org.eclipse.cdt.build.core.templates.objc.HelloWorldObjCProject"
+			location="$nl$/templates/HelloWorldObjCProject/template.xml"
+			projectType="org.eclipse.cdt.build.core.buildArtefactType.exe">
 		</template>
 	</extension>
 </plugin>
