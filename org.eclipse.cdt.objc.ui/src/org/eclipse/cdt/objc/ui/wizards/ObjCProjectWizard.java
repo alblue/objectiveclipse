@@ -13,6 +13,14 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 public class ObjCProjectWizard extends CDTCommonProjectWizard {
 
     @Override
+    public void addPages() {
+        fMainPage = new ObjCMainWizardPage();
+        fMainPage.setTitle("Objective C wizard");
+        fMainPage.setDescription("Objeciive C description");
+        addPage(fMainPage);
+    }
+
+    @Override
     protected IProject continueCreation(IProject prj) {
         if (continueCreationMonitor == null) {
             continueCreationMonitor = new NullProgressMonitor();
