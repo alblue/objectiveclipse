@@ -34,19 +34,18 @@ public class ObjCScannerExtensionConfiguration extends GNUScannerExtensionConfig
         addKeyword("SEL");
         addKeyword("BOOL");
         // Objective C keywords
-        addKeyword("@end");
-        addKeyword("@implementation");
-        addKeyword("@interface");
-        addKeyword("@protocol");
-        addKeyword("@selector");
-        // TODO until Eclipse bug 272124 is resolved
-        addKeyword("end");
-        addKeyword("implementation");
-        addKeyword("interface");
-        addKeyword("protocol");
-        addKeyword("selector");
+        String[] keywords = new String[] { "catch", "class", "dynamic", "encode", "end", "finally",
+                "implementation", "interface", "optional", "private", "property", "protected", "protocol",
+                "public", "required", "selector", "synchronized", "synthesize", "throw", "try", };
+        for (int i = 0; i < keywords.length; i++) {
+            // TODO until Eclipse bug 272124 is resolved
+            addKeyword("@" + keywords[i]); // FIXME consider removing when
+                                           // Eclipse 3.5 goes gold
+            addKeyword(keywords[i]);
+        }
         // Objective C literals - should these be macros?
         addKeyword("nil");
+        addKeyword("Nil");
         addKeyword("YES");
         addKeyword("NO");
     }
