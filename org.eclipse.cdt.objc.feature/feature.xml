@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.cdt.objc.feature"
+      label="ObjectivEClipse Feature"
+      version="0.1.0"
+      provider-name="Alex Blewitt"
+      os="macosx">
+
+   <description url="http://code.google.com/p/objectiveclipse">
+      This provides a set of Objective-C extensions to CDT
+   </description>
+
+   <copyright>
+      Copyright (c) 2009 Alex Blewitt and others
+   </copyright>
+
+   <license url="http://www.eclipse.org/legal/epl-v10.html">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import feature="org.eclipse.cdt" version="6.0.0.200903161435"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.cdt.objc.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.cdt.objc.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

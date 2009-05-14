@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Compile org.eclipse.cdt.objc.feature" default="main">
+	<target name="main">
+		<ant antfile="build.xml" dir="../org.eclipse.cdt.objc.core" target="build.jars"/>
+		<ant antfile="build.xml" dir="../org.eclipse.cdt.objc.ui" target="build.jars"/>
+	</target>
+</project>
