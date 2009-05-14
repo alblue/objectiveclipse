@@ -47,7 +47,7 @@ public class GNUObjCSourceParser extends GNUCSourceParser {
                     boolean isImplementation = "@implementation".equals(i); //$NON-NLS-1$
                     boolean isProtocol = "@protocol".equals(i); //$NON-NLS-1$
                     if (isInterface || isImplementation || isProtocol) {
-                        System.err.println("We're in an interface!");
+                        // System.err.println("We're in an interface!");
                         consume();
                         return null; // TODO Further impl needed here
                         // return typeDeclaration(declOption, isInterface,
