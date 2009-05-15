@@ -22,4 +22,5 @@ Import-Package: org.eclipse.cdt.core.dom,
  org.eclipse.cdt.internal.core.pdom,
  org.eclipse.cdt.managedbuilder.makegen.gnu,
  org.eclipse.core.resources
-Export-Package: org.eclipse.cdt.objc.core
+Export-Package: org.eclipse.cdt.objc.core,
+ org.eclipse.cdt.objc.core.internal.dom.parser.objc;x-friends:="org.eclipse.cdt.objc.core.tests"
