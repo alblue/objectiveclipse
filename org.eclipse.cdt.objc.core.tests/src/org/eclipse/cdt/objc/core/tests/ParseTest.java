@@ -14,11 +14,11 @@ public class ParseTest extends AbstractParseTest {
     @SuppressWarnings("nls")
     @Test
     public void testInterface() {
-        // valid(parse("@interface Foo \n - (void)display; \n@end"));
+        valid(parse("@interface Foo \n - (void)display; \n@end"));
         valid(parse("@interface Foo \n - (void)setX: (int)x andY: (int)y; \n@end"));
-        // valid(parse("@interface Foo { } @end"));
-        // valid(parse("@interface Foo { NSString* strung; } @end"));
-        // invalid(parse("@interface @end"));
+        valid(parse("@interface Foo { } @end"));
+        valid(parse("@interface Foo { NSString* strung; } @end"));
+        invalid(parse("@interface @end"));
     }
 
     @SuppressWarnings("nls")
@@ -39,7 +39,7 @@ public class ParseTest extends AbstractParseTest {
     }
 
     @SuppressWarnings("nls")
-    // @Test
+    @Test
     public void testProtocol() {
         valid(parse("@protocol Foo @end"));
         invalid(parse("@protocol @end"));
