@@ -4,7 +4,8 @@ Bundle-Name: ObjectivEClipse Core Plug-in
 Bundle-SymbolicName: org.eclipse.cdt.objc.core;singleton:=true
 Bundle-Version: 0.1.0
 Bundle-Activator: org.eclipse.cdt.objc.core.ObjCPlugin
-Require-Bundle: org.eclipse.core.runtime
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.cdt.core;bundle-version="5.1.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
@@ -23,4 +24,8 @@ Import-Package: org.eclipse.cdt.core.dom,
  org.eclipse.cdt.managedbuilder.makegen.gnu,
  org.eclipse.core.resources
 Export-Package: org.eclipse.cdt.objc.core,
+ org.eclipse.cdt.objc.core.dom.ast.objc,
+ org.eclipse.cdt.objc.core.dom.parser.gnu.objc,
+ org.eclipse.cdt.objc.core.dom.parser.objc,
+ org.eclipse.cdt.objc.core.internal.dom.parser,
  org.eclipse.cdt.objc.core.internal.dom.parser.objc;x-friends:="org.eclipse.cdt.objc.core.tests"
