@@ -11,36 +11,38 @@
  *******************************************************************************/
 package org.eclipse.cdt.objc.core.dom.ast.objc;
 
-import org.eclipse.cdt.core.dom.ICodeReaderFactory;
 import org.eclipse.cdt.core.dom.ILinkage;
-import org.eclipse.cdt.core.dom.ast.IASTCompletionNode;
-import org.eclipse.cdt.core.dom.ast.IASTName;
-import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.parser.AbstractCLikeLanguage;
 import org.eclipse.cdt.core.dom.parser.IScannerExtensionConfiguration;
 import org.eclipse.cdt.core.dom.parser.ISourceCodeParser;
 import org.eclipse.cdt.core.dom.parser.c.GCCParserExtensionConfiguration;
 import org.eclipse.cdt.core.index.IIndex;
-import org.eclipse.cdt.core.model.IContributedModelBuilder;
-import org.eclipse.cdt.core.model.ITranslationUnit;
-import org.eclipse.cdt.core.parser.CodeReader;
 import org.eclipse.cdt.core.parser.IParserLogService;
 import org.eclipse.cdt.core.parser.IScanner;
-import org.eclipse.cdt.core.parser.IScannerInfo;
 import org.eclipse.cdt.core.parser.ParserLanguage;
 import org.eclipse.cdt.core.parser.ParserMode;
+import org.eclipse.cdt.internal.core.pdom.dom.IPDOMLinkageFactory;
+import org.eclipse.cdt.internal.core.pdom.dom.c.PDOMCLinkageFactory;
 import org.eclipse.cdt.objc.core.ObjCPlugin;
+import org.eclipse.cdt.objc.core.dom.parser.objc.IObjCParserExtensionConfiguration;
+import org.eclipse.cdt.objc.core.dom.parser.objc.ObjCParserExtensionConfiguration;
 import org.eclipse.cdt.objc.core.dom.parser.objc.ObjCScannerExtensionConfiguration;
 import org.eclipse.cdt.objc.core.internal.dom.parser.objc.GNUObjCSourceParser;
-import org.eclipse.core.runtime.CoreException;
 
+@SuppressWarnings("restriction")
 public class ObjCLanguage extends AbstractCLikeLanguage {
 
-    @Override
-    public IContributedModelBuilder createModelBuilder(ITranslationUnit tu) {
-        // TODO Auto-generated method stub
-        // System.err.println("Creating model builder");
-        return null;
+    private static final ObjCLanguage DEFAULT_INSTANCE = new ObjCLanguage();
+    public static final String ID = ObjCPlugin.PLUGIN_ID + ".objcLanguage"; //$NON-NLS-1$ 
+
+    protected static final ObjCParserExtensionConfiguration OBJC_PARSER_EXTENSION = ObjCParserExtensionConfiguration
+            .getInstance();
+
+    protected static final ObjCScannerExtensionConfiguration OBJC_SCANNER_EXTENSION = ObjCScannerExtensionConfiguration
+            .getInstance();
+
+    public static ObjCLanguage getDefault() {
+        return DEFAULT_INSTANCE;
     }
 
     @Override
@@ -52,45 +54,38 @@ public class ObjCLanguage extends AbstractCLikeLanguage {
     }
 
     @Override
-    public IASTTranslationUnit getASTTranslationUnit(CodeReader reader, IScannerInfo scanInfo,
-            ICodeReaderFactory fileCreator, IIndex index, IParserLogService log) throws CoreException {
-        // TODO Auto-generated method stub
-        // System.err.println("Getting translation unit");
-        return null;
-    }
-
-    @Override
-    public IASTCompletionNode getCompletionNode(CodeReader reader, IScannerInfo scanInfo,
-            ICodeReaderFactory fileCreator, IIndex index, IParserLogService log, int offset)
-            throws CoreException {
-        // TODO Auto-generated method stub
-        // System.err.println("Getting completion node");
-        return null;
+    @SuppressWarnings( { "unchecked" })
+    public Object getAdapter(Class adapter) {
+        if (adapter == IPDOMLinkageFactory.class) {
+            return new PDOMCLinkageFactory();
+        }
+        return super.getAdapter(adapter);
     }
 
     public String getId() {
-        return ObjCPlugin.PLUGIN_ID + ".objcLanguage"; //$NON-NLS-1$
+        return ID;
     }
 
     public int getLinkageID() {
         return ILinkage.OBJC_LINKAGE_ID;
     }
 
+    /**
+     * Returns the extension configuration used for creating the parser.
+     * 
+     * @since 5.1
+     */
+    protected IObjCParserExtensionConfiguration getParserExtensionConfiguration() {
+        return OBJC_PARSER_EXTENSION;
+    }
+
     @Override
     protected ParserLanguage getParserLanguage() {
-        // FIXME This should really be an ObjC version of same
         return ParserLanguage.C;
     }
 
     @Override
     protected IScannerExtensionConfiguration getScannerExtensionConfiguration() {
-        return ObjCScannerExtensionConfiguration.getInstance();
-    }
-
-    @Override
-    public IASTName[] getSelectedNames(IASTTranslationUnit ast, int start, int length) {
-        // System.err.println("In 'get selected names' call");
-        // TODO Auto-generated method stub
-        return null;
+        return OBJC_SCANNER_EXTENSION;
     }
 }
