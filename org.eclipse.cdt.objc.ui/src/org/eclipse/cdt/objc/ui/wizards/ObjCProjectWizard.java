@@ -16,8 +16,27 @@ public class ObjCProjectWizard extends CDTCommonProjectWizard {
     public void addPages() {
         fMainPage = new ObjCMainWizardPage();
         fMainPage.setTitle("Objective C wizard");
-        fMainPage.setDescription("Objeciive C description");
+        fMainPage.setDescription("Objective C description");
         addPage(fMainPage);
+    }
+
+    @Override
+    public boolean canFinish() {
+        if (fMainPage.h_selected != null) {
+            if (!fMainPage.h_selected.canFinish()) {
+                return false;
+            }
+            String s = fMainPage.h_selected.getErrorMessage();
+            if (s != null) {
+                return false;
+            }
+        }
+        for (int i = 0; i < super.getPageCount(); i++) {
+            if (!(super.getPages()[i]).isPageComplete()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -31,6 +50,7 @@ public class ObjCProjectWizard extends CDTCommonProjectWizard {
             ObjCProjectNature.addObjCNature(prj, new SubProgressMonitor(continueCreationMonitor, 1));
             CProjectNature.addCNature(prj, new SubProgressMonitor(continueCreationMonitor, 1));
         } catch (CoreException e) {
+            e.printStackTrace();
         } finally {
             continueCreationMonitor.done();
         }
