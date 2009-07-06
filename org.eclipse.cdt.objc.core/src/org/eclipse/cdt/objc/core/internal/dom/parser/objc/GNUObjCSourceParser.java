@@ -322,8 +322,10 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
     private IASTExpression buildMessageSelectorExpression() throws EndOfFileException, BacktrackException {
         boolean expectSelector = true;
+        boolean valid = false;
         final int startOffset = LA(1).getOffset();
         int lastOffset = startOffset;
+        int i = 0;
         final int length = LA(1).getLength();
 
         IASTExpressionList expressionList = nodeFactory.newExpressionList();
@@ -334,28 +336,33 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
         paramLoop: while (true) {
             switch (LT(1)) {
-                case IToken.tRBRACKET:
-                    break paramLoop;
                 case IToken.tEOC:
-                    consume();
+                case IToken.tRBRACKET:
+                    if (!valid) {
+                        throwBacktrack(LA(1));
+                    }
                     break paramLoop;
                 case IToken.tCOLON:
                     consume();
                     builder.append(":"); //$NON-NLS-1$
                     expectSelector = false;
+                    valid = false;
                     break;
                 default:
                     if (expectSelector) {
                         pName = identifier();
                         builder.append(pName.getSimpleID());
+                        valid = (i > 0) ? false : true;
                     } else {
                         IASTExpression expr = expression();
                         expressionList.addExpression(expr);
                         lastOffset = calculateEndOffset(expr);
                         expectSelector = true;
+                        valid = true;
                     }
                     break;
             }
+            ++i;
         }
 
         ((ASTNode) expressionList).setLength(lastOffset - startOffset);

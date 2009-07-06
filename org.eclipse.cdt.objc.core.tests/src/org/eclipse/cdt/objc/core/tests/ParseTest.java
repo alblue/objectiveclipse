@@ -25,12 +25,10 @@ public class ParseTest extends AbstractParseTest {
     @Test
     public void testMessageSends() {
         valid(parseExpression("[foo bar]"));
-        // TODO This is technically invalid - find out why it's failing
-        // invalid(parseExpression("[foo bar wibble]"));
+        invalid(parseExpression("[foo bar wibble]"));
         valid(parseExpression("[foo bar:ding]"));
-        // TODO This is technically invalid - find out why it's failing
-        // invalid(parseExpression("[foo bar:]"));
-        // invalid(parseExpression("[foo bar:ding dong]"));
+        invalid(parseExpression("[foo bar:]"));
+        invalid(parseExpression("[foo bar:ding dong]"));
         valid(parseExpression("[foo bar:ding dong:merrily on:high]"));
         valid(parseExpression("@\"Foo\""));
         valid(parseExpression("@\"\""));
