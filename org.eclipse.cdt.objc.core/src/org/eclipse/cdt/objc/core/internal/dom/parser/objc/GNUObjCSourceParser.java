@@ -1821,8 +1821,13 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         declarationList(decl, opts, false, stopImage, codeBranchNesting);
 
         final IToken la1 = LAcatchEOF(1);
-        if (stopImage == null || la1.getImage().equals(stopImage)) {
-            int endOffset = la1.getEndOffset();
+        if (stopImage == null || /* la1 == null for EOF */la1 == null || la1.getImage().equals(stopImage)) {
+            int endOffset = offset;
+            if (la1 != null) {
+                endOffset = la1.getEndOffset();
+            } else {
+                endOffset = ((ASTNode) decl).getOffset() + ((ASTNode) decl).getLength();
+            }
             setRange(decl, offset, endOffset);
             return;
         }
