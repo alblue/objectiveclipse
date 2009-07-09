@@ -2,13 +2,17 @@ package org.eclipse.cdt.objc.ui.wizards;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.CProjectNature;
+import org.eclipse.cdt.core.language.ProjectLanguageConfiguration;
+import org.eclipse.cdt.core.model.LanguageManager;
 import org.eclipse.cdt.objc.core.ObjCProjectNature;
+import org.eclipse.cdt.objc.core.dom.ast.objc.ObjCLanguage;
 import org.eclipse.cdt.ui.newui.UIMessages;
 import org.eclipse.cdt.ui.wizards.CDTCommonProjectWizard;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.content.IContentType;
 
 public class ObjCProjectWizard extends CDTCommonProjectWizard {
 
@@ -46,9 +50,18 @@ public class ObjCProjectWizard extends CDTCommonProjectWizard {
         }
 
         try {
-            continueCreationMonitor.beginTask(UIMessages.getString("CProjectWizard.0"), 2); //$NON-NLS-1$
+            continueCreationMonitor.beginTask(UIMessages.getString("CProjectWizard.0"), 3); //$NON-NLS-1$
             ObjCProjectNature.addObjCNature(prj, new SubProgressMonitor(continueCreationMonitor, 1));
             CProjectNature.addCNature(prj, new SubProgressMonitor(continueCreationMonitor, 1));
+
+            LanguageManager langManager = LanguageManager.getInstance();
+
+            ProjectLanguageConfiguration langConfig = langManager.getLanguageConfiguration(prj);
+            // Sets C headers to be Objective-C types
+            langConfig.addContentTypeMapping(null, CCorePlugin.CONTENT_TYPE_CHEADER, ObjCLanguage.ID);
+
+            langManager.storeLanguageMappingConfiguration(prj, new IContentType[0]);
+            continueCreationMonitor.worked(1);
         } catch (CoreException e) {
             e.printStackTrace();
         } finally {
