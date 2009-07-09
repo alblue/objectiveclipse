@@ -72,13 +72,12 @@ public class ObjCProjectWizard extends CDTCommonProjectWizard {
 
     @Override
     public String[] getContentTypeIDs() {
-        return new String[] { CCorePlugin.CONTENT_TYPE_CSOURCE, CCorePlugin.CONTENT_TYPE_CHEADER };
+        return new String[] { "org.eclipse.cdt.objc.core.objcSource", "org.eclipse.cdt.objc.core.objHeader" };
     }
 
     @Override
     public String[] getNatures() {
-        return new String[] { ObjCProjectNature.OBJC_NATURE_ID, CProjectNature.C_NATURE_ID,
-                "org.eclipse.cdt.objc.core.objcSource" };
+        return new String[] { ObjCProjectNature.OBJC_NATURE_ID, ObjCProjectNature.OBJC_NATURE_ID,
+                CProjectNature.C_NATURE_ID };
     }
-
 }
