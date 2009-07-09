@@ -3,7 +3,7 @@
 <plugin>
 	<extension point="org.eclipse.cdt.core.language">
 		<language class="org.eclipse.cdt.objc.core.dom.ast.objc.ObjCLanguage"
-			id="org.eclipse.cdt.objc.core.objcLanguage" name="%objc.language.name">
+			id="objcLanguage" name="%objc.language.name">
 			<contentType id="org.eclipse.cdt.objc.core.objcHeader" />
 			<contentType id="org.eclipse.cdt.objc.core.objcSource" />
 		</language>
@@ -14,9 +14,6 @@
 		<content-type id="org.eclipse.cdt.objc.core.objcSource"
 			name="%objc.source.name" base-type="org.eclipse.cdt.core.cSource"
 			file-extensions="m" priority="high" />
-	</extension>
-
-	<extension point="org.eclipse.core.contenttype.contentTypes">
 		<!-- declares a content type for ObjC files -->
 		<content-type id="org.eclipse.cdt.objc.core.objcHeader"
 			name="%objc.header.name" base-type="org.eclipse.cdt.objc.core.objcSource"
