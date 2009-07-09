@@ -54,7 +54,7 @@
 		<tool id="cdt.managedbuild.tool.macosx.objc.compiler" name="%objc.compiler.name"
 			superClass="cdt.managedbuild.tool.gnu.c.compiler">
 			<inputType sourceContentType="org.eclipse.cdt.objc.core.objcSource"
-				sources="m" dependencyContentType="org.eclipse.cdt.core.cHeader"
+				sources="m" dependencyContentType="org.eclipse.cdt.core.objcHeader"
 				dependencyExtensions="h"
 				dependencyCalculator="org.eclipse.cdt.managedbuilder.makegen.gnu.DefaultGCCDependencyCalculator2"
 				id="cdt.managedbuild.tool.macosx.objc.compiler.input"
