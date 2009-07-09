@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.cdt.objc.feature"
       label="ObjectivEClipse Feature"
-      version="0.1.0"
+      version="0.2.0"
       provider-name="Alex Blewitt"
       os="macosx">
 
@@ -26,14 +26,14 @@
          id="org.eclipse.cdt.objc.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="0.2.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.cdt.objc.ui"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="0.2.0"
          unpack="false"/>
 
 </feature>
