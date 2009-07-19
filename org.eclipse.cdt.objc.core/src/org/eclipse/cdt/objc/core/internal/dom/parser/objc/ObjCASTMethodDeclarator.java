@@ -20,6 +20,7 @@ import org.eclipse.cdt.core.dom.ast.IScope;
 import org.eclipse.cdt.core.parser.util.ArrayUtil;
 import org.eclipse.cdt.internal.core.dom.parser.ASTNode;
 import org.eclipse.cdt.internal.core.dom.parser.ASTQueries;
+import org.eclipse.cdt.internal.core.dom.parser.IASTAmbiguityParent;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodDeclarator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodParameterDeclaration;
 
@@ -27,7 +28,8 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodParameterDeclaration
  * Models function declarators for plain c.
  */
 @SuppressWarnings("restriction")
-public class ObjCASTMethodDeclarator extends ObjCASTDeclarator implements IObjCASTMethodDeclarator {
+public class ObjCASTMethodDeclarator extends ObjCASTDeclarator implements IObjCASTMethodDeclarator,
+        IASTAmbiguityParent {
 
     private boolean isProto = false;
     private IASTParameterDeclaration[] parameters = null;

@@ -18,9 +18,54 @@ import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
  */
 public interface IObjCASTDeclSpecifier extends IASTDeclSpecifier {
 
-    public boolean isProtocol();
+    /**
+     * Is bycopy keyword used?
+     * 
+     * @return boolean
+     */
+    public boolean isByCopy();
 
-    public void setProtocol(boolean value);
+    /**
+     * Is byref keyword used?
+     * 
+     * @return boolean
+     */
+    public boolean isByRef();
+
+    /**
+     * Is in keyword used?
+     * 
+     * @return boolean
+     */
+    public boolean isIn();
+
+    /**
+     * Is inout keyword used?
+     * 
+     * @return boolean
+     */
+    public boolean isInOut();
+
+    /**
+     * Is oneway keyword used?
+     * 
+     * @return boolean
+     */
+    public boolean isOneWay();
+
+    /**
+     * Is out keyword used?
+     * 
+     * @return boolean
+     */
+    public boolean isOut();
+
+    /**
+     * Is this a virtual method defined in a protocol
+     * 
+     * @return boolean
+     */
+    public boolean isProtocol();
 
     /**
      * Is restrict keyword used?
@@ -30,15 +75,59 @@ public interface IObjCASTDeclSpecifier extends IASTDeclSpecifier {
     public boolean isRestrict();
 
     /**
+     * Set bycopy to value.
+     * 
+     * @param value
+     */
+    public void setByCopy(boolean value);
+
+    /**
+     * Set byref to value.
+     * 
+     * @param value
+     */
+    public void setByRef(boolean value);
+
+    /**
+     * Set in to value.
+     * 
+     * @param value
+     */
+    public void setIn(boolean value);
+
+    /**
+     * Set inout to value.
+     * 
+     * @param value
+     */
+    public void setInOut(boolean value);
+
+    /**
+     * Set oneway to value.
+     * 
+     * @param value
+     */
+    public void setOneWay(boolean value);
+
+    /**
+     * Set out to value.
+     * 
+     * @param value
+     */
+    public void setOut(boolean value);
+
+    /**
+     * Set protocol to value.
+     * 
+     * @param value
+     */
+    public void setProtocol(boolean value);
+
+    /**
      * Set restrict to value.
      * 
      * @param value
      */
     public void setRestrict(boolean value);
-
-    /**
-     * @since 5.1
-     */
-    public IObjCASTDeclSpecifier copy();
 
 }

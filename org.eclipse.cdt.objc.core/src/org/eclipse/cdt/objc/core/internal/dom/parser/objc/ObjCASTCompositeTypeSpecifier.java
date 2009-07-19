@@ -29,6 +29,7 @@ public class ObjCASTCompositeTypeSpecifier extends ObjCASTBaseDeclSpecifier impl
 
     private IObjCASTCompositeTypeSpecifier.IObjCASTBaseSpecifier[] baseSpecs = null;
     private int baseSpecsPos = -1;
+    private IObjCASTCompositeTypeSpecifier.IObjCASTCategorySpecifier cSpec = null;
     private IASTDeclaration[] fActiveDeclarations = null;
     private IASTDeclaration[] fAllDeclarations = null;
     private int fDeclarationsPos = -1;
@@ -65,6 +66,10 @@ public class ObjCASTCompositeTypeSpecifier extends ObjCASTBaseDeclSpecifier impl
             if (!bases[i].accept(action)) {
                 return false;
             }
+        }
+
+        if (cSpec != null && !cSpec.accept(action)) {
+            return false;
         }
 
         IASTDeclaration[] decls = getDeclarations(action.includeInactiveNodes);
@@ -115,12 +120,14 @@ public class ObjCASTCompositeTypeSpecifier extends ObjCASTBaseDeclSpecifier impl
     public ObjCASTCompositeTypeSpecifier copy() {
         ObjCASTCompositeTypeSpecifier copy = new ObjCASTCompositeTypeSpecifier();
         copyCompositeTypeSpecifier(copy);
+        copy.setOffsetAndLength(this);
         return copy;
     }
 
     protected void copyCompositeTypeSpecifier(ObjCASTCompositeTypeSpecifier copy) {
         copyBaseDeclSpec(copy);
         copy.setKey(fKey);
+        copy.setCategorySpecifier(cSpec == null ? null : cSpec.copy());
         copy.setName(fName == null ? null : fName.copy());
         for (IASTDeclaration member : getMembers()) {
             copy.addMemberDeclaration(member == null ? null : member.copy());
@@ -137,6 +144,10 @@ public class ObjCASTCompositeTypeSpecifier extends ObjCASTBaseDeclSpecifier impl
         baseSpecs = (IObjCASTBaseSpecifier[]) ArrayUtil.removeNullsAfter(IObjCASTBaseSpecifier.class,
                 baseSpecs, baseSpecsPos);
         return baseSpecs;
+    }
+
+    public IObjCASTCategorySpecifier getCategorySpecifier() {
+        return cSpec;
     }
 
     public final IASTDeclaration[] getDeclarations(boolean includeInactive) {
@@ -189,6 +200,15 @@ public class ObjCASTCompositeTypeSpecifier extends ObjCASTBaseDeclSpecifier impl
                 fActiveDeclarations = null;
                 return;
             }
+        }
+    }
+
+    public void setCategorySpecifier(IObjCASTCategorySpecifier catSpec) {
+        assertNotFrozen();
+        cSpec = catSpec;
+        if (catSpec != null) {
+            catSpec.setParent(this);
+            catSpec.setPropertyInParent(CAT_SPECIFIER);
         }
     }
 

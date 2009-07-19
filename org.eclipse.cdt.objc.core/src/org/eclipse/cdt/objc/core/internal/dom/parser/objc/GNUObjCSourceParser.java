@@ -89,6 +89,7 @@ import org.eclipse.cdt.internal.core.dom.parser.IASTAmbiguousStatement;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTArrayDesignator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTArrayModifier;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCatchHandler;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTClassMemoryLayoutDeclaration;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTDesignatedInitializer;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTDesignator;
@@ -97,9 +98,14 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTFieldDesignator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodDeclarator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTOptionalityLabel;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPointer;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPropertyAttribute;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPropertyDeclSpecifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPropertyDeclaration;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPropertyImplementationDeclaration;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTProtocolIdExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTSelectorIdExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTSimpleDeclSpecifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTSynchronizedBlockStatement;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTTryBlockStatement;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTTypeIdExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTTypedefNameSpecifier;
@@ -107,7 +113,9 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTUnaryExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTVisibilityLabel;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCNodeFactory;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier.IObjCASTBaseSpecifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier.IObjCASTCategorySpecifier;
 import org.eclipse.cdt.objc.core.dom.parser.IObjCToken;
+import org.eclipse.cdt.objc.core.dom.parser.ObjCKeywords;
 import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCASTKnRFunctionDeclarator;
 import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCGCCASTArrayRangeDesignator;
 
@@ -117,13 +125,15 @@ import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCGCCASTArrayRangeDesign
 @SuppressWarnings("restriction")
 public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
     private static final String AT = "@"; //$NON-NLS-1$
+    private static final int CORRECT_END_TERMINATOR_INDEX = 0;
+
     private static final int DEFAULT_CATCH_HANDLER_LIST_SIZE = 4;
-
     private static final int DEFAULT_PARAMETERS_LIST_SIZE = 4;
-    private static final int DEFAULT_POINTEROPS_LIST_SIZE = 4;
 
+    private static final int DEFAULT_POINTEROPS_LIST_SIZE = 4;
     private final static int INLINE = 0x1, CONST = 0x2, RESTRICT = 0x4, VOLATILE = 0x8, SHORT = 0x10,
-            UNSIGNED = 0x20, SIGNED = 0x40, COMPLEX = 0x80, IMAGINARY = 0x100;
+            UNSIGNED = 0x20, SIGNED = 0x40, COMPLEX = 0x80, IMAGINARY = 0x100, PROPERTY = 0x200,
+            BYREF = 0x400, BYCOPY = 0x800, IN = 0x1000, OUT = 0x2000, INOUT = 0x4000, ONEWAY = 0x8000;
     private static final ASTVisitor MARK_INACTIVE = new ASTGenericVisitor(true) {
         {
             shouldVisitAmbiguousNodes = true;
@@ -151,14 +161,17 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
     private boolean expectClassDeclaration;
     private int fPreventKnrCheck = 0;
+
     private final IIndex index;
 
     private final IObjCNodeFactory nodeFactory;
 
     private boolean parsingClassDeclarationList;
-
-    private boolean parsingProtocolDeclSpecList;
     private final boolean supportGCCStyleDesignators;
+
+    private final String[] terminators = new String[] { new String(ObjCKeywords.cp_AtEnd),
+            new String(ObjCKeywords.cp_AtInterface), new String(ObjCKeywords.cp_AtImplementation),
+            new String(ObjCKeywords.cp_AtProtocol) };
     protected IASTTranslationUnit translationUnit;
 
     public GNUObjCSourceParser(IScanner scanner, ParserMode parserMode, IParserLogService logService,
@@ -285,6 +298,90 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         return d;
     }
 
+    public IObjCASTCompositeTypeSpecifier buildCompositeImplementationDeclSpec(IASTName name)
+            throws EndOfFileException, BacktrackException {
+        IObjCASTCompositeTypeSpecifier astSpecifier;
+        int lt1 = LT(1);
+        if (lt1 == IToken.tLPAREN) {
+            IToken s = consume(IToken.tLPAREN);
+            IASTName categoryName = identifier();
+            IObjCASTCategorySpecifier cat = nodeFactory.newCategorySpecifier(categoryName);
+            IToken e = consume(IToken.tRPAREN);
+            ((ASTNode) cat).setOffsetAndLength(s.getOffset(), e.getOffset() + e.getLength());
+            astSpecifier = nodeFactory.newCompositeTypeSpecifier(IObjCASTCompositeTypeSpecifier.k_category,
+                    name);
+            astSpecifier.setCategorySpecifier(cat);
+        } else {
+            astSpecifier = nodeFactory
+                    .newCompositeTypeSpecifier(IObjCASTCompositeTypeSpecifier.k_class, name);
+            if (lt1 == IToken.tCOLON) {
+                consume();
+                IASTName bname = identifier();
+                IObjCASTBaseSpecifier base = nodeFactory.newBaseSpecifier(bname, false);
+                ((ASTNode) base).setOffsetAndLength((ASTNode) bname);
+                astSpecifier.addBaseSpecifier(base);
+                lt1 = LT(1);
+            }
+            if (lt1 == IToken.tLBRACE) {
+                instanceVariables(astSpecifier);
+                lt1 = LT(1);
+            }
+        }
+        implementationDefinitionList(astSpecifier);
+        return astSpecifier;
+    }
+
+    public IObjCASTCompositeTypeSpecifier buildCompositeInterfaceDeclSpec(IASTName name)
+            throws EndOfFileException, BacktrackException {
+        IObjCASTCompositeTypeSpecifier astSpecifier;
+        boolean classInterface = false;
+        int lt1 = LT(1);
+        if (lt1 == IToken.tLPAREN) {
+            consume(IToken.tLPAREN);
+            identifier();
+            consume(IToken.tRPAREN);
+            astSpecifier = nodeFactory.newCompositeTypeSpecifier(IObjCASTCompositeTypeSpecifier.k_category,
+                    name);
+        } else {
+            astSpecifier = nodeFactory
+                    .newCompositeTypeSpecifier(IObjCASTCompositeTypeSpecifier.k_class, name);
+            lt1 = LT(1);
+            if (lt1 == IToken.tCOLON) {
+                consume();
+                IToken bc = consume(IToken.tIDENTIFIER);
+                IASTName bname = nodeFactory.newName(bc.getCharImage());
+                ((ASTNode) bname).setOffsetAndLength(bc.getOffset(), bc.getLength());
+                IObjCASTBaseSpecifier base = nodeFactory.newBaseSpecifier(bname, false);
+                ((ASTNode) base).setOffsetAndLength((ASTNode) bname);
+                astSpecifier.addBaseSpecifier(base);
+                lt1 = LT(1);
+            }
+            classInterface = true;
+        }
+        lt1 = LT(1);
+        if (lt1 == IToken.tLT) {
+            protocolReferenceList(astSpecifier);
+            lt1 = LT(1);
+        }
+        if (classInterface && lt1 == IToken.tLBRACE) {
+            instanceVariables(astSpecifier);
+            lt1 = LT(1);
+        }
+        interfaceDeclarationList(astSpecifier, ObjCDeclarationOptions.INTERFACE_LIST);
+        return astSpecifier;
+    }
+
+    private IObjCASTCompositeTypeSpecifier buildCompositeProtocolDeclSpec(IASTName name)
+            throws EndOfFileException, BacktrackException {
+        IObjCASTCompositeTypeSpecifier astSpecifier = nodeFactory.newCompositeTypeSpecifier(
+                IObjCASTCompositeTypeSpecifier.k_protocol, name);
+        if (LT(1) == IToken.tLT) {
+            protocolReferenceList(astSpecifier);
+        }
+        interfaceDeclarationList(astSpecifier, ObjCDeclarationOptions.PROTOCOL_LIST);
+        return astSpecifier;
+    }
+
     private IASTExpression buildEncodeExpression() throws EndOfFileException, BacktrackException {
         int offset = consume().getOffset();
         IASTTypeId typeid;
@@ -405,10 +502,24 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
     }
 
     private IObjCASTTypedefNameSpecifier buildNamedTypeSpecifier(IASTName name, int storageClass,
-            int options, int offset, int endOffset) {
-        IObjCASTTypedefNameSpecifier declSpec = nodeFactory.newTypedefNameSpecifier(name);
+            int options, IObjCASTPropertyAttribute[] propertyAttributes, int offset, int endOffset) {
+        IObjCASTTypedefNameSpecifier declSpec;
+        if ((options & PROPERTY) != 0) {
+            declSpec = nodeFactory.newTypedefNamePropertySpecifier(name);
+            for (IObjCASTPropertyAttribute attr : propertyAttributes) {
+                ((IObjCASTPropertyDeclSpecifier) declSpec).addAttribute(attr);
+            }
+        } else {
+            declSpec = nodeFactory.newTypedefNameSpecifier(name);
+        }
         configureDeclSpec(declSpec, storageClass, options);
         declSpec.setRestrict((options & RESTRICT) != 0);
+        declSpec.setByCopy((options & BYCOPY) != 0);
+        declSpec.setByRef((options & BYREF) != 0);
+        declSpec.setIn((options & IN) != 0);
+        declSpec.setOut((options & OUT) != 0);
+        declSpec.setInOut((options & INOUT) != 0);
+        declSpec.setOneWay((options & ONEWAY) != 0);
         ((ASTNode) declSpec).setOffsetAndLength(offset, endOffset - offset);
         return declSpec;
     }
@@ -464,10 +575,16 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
     }
 
     private IObjCASTSimpleDeclSpecifier buildSimpleDeclSpec(int storageClass, int simpleType, int options,
-            int isLong, IASTExpression typeofExpression, int offset, int endOffset) {
+            int isLong, IASTExpression typeofExpression, IObjCASTPropertyAttribute[] propertyAttributes,
+            int offset, int endOffset) {
         IObjCASTSimpleDeclSpecifier declSpec;
         if (typeofExpression != null) {
             declSpec = nodeFactory.newSimpleDeclSpecifierGCC(typeofExpression);
+        } else if ((options & PROPERTY) != 0) {
+            declSpec = nodeFactory.newSimplePropertyDeclSpecifier();
+            for (IObjCASTPropertyAttribute attr : propertyAttributes) {
+                ((IObjCASTPropertyDeclSpecifier) declSpec).addAttribute(attr);
+            }
         } else {
             declSpec = nodeFactory.newSimpleDeclSpecifier();
         }
@@ -555,42 +672,6 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             catchHandlers.add(handler);
             lt1 = LTcatchEOF(1);
         }
-    }
-
-    private IObjCASTCompositeTypeSpecifier categoryImplementation() throws EndOfFileException,
-            BacktrackException {
-        IASTName name = identifier();
-        if (name.getSimpleID()[0] == '@') {
-            throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, ((ASTNode) name).getOffset(),
-                    ((ASTNode) name).getLength()));
-        }
-        consume(IToken.tLPAREN);
-        identifier();
-        consume(IToken.tRPAREN);
-        IObjCASTCompositeTypeSpecifier astSpecifier = nodeFactory.newCompositeTypeSpecifier(
-                IObjCASTCompositeTypeSpecifier.k_category, name);
-        implementationDefinitionList(astSpecifier);
-        return astSpecifier;
-    }
-
-    public IObjCASTCompositeTypeSpecifier categoryInterface() throws EndOfFileException, BacktrackException {
-        IASTName name = identifier();
-        if (name.getSimpleID()[0] == '@') {
-            throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, ((ASTNode) name).getOffset(),
-                    ((ASTNode) name).getLength()));
-        }
-        consume(IToken.tLPAREN);
-        identifier();
-        consume(IToken.tRPAREN);
-        IObjCASTCompositeTypeSpecifier astSpecifier = nodeFactory.newCompositeTypeSpecifier(
-                IObjCASTCompositeTypeSpecifier.k_category, name);
-        int lt1 = LT(1);
-        if (lt1 == IToken.tLT) {
-            protocolReferenceList(astSpecifier);
-            lt1 = LT(1);
-        }
-        interfaceDeclarationList(astSpecifier, ObjCDeclarationOptions.INTERFACE_LIST);
-        return astSpecifier;
     }
 
     private IASTSimpleDeclaration checkKnrParameterDeclaration(IASTDeclaration decl,
@@ -693,65 +774,6 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             }
         }
         // consume the closing brace
-    }
-
-    private IObjCASTCompositeTypeSpecifier classImplementation() throws EndOfFileException,
-            BacktrackException {
-        IASTName name = identifier();
-        if (name.getSimpleID()[0] == '@') {
-            throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, ((ASTNode) name).getOffset(),
-                    ((ASTNode) name).getLength()));
-        }
-        IObjCASTCompositeTypeSpecifier astSpecifier = nodeFactory.newCompositeTypeSpecifier(
-                IObjCASTCompositeTypeSpecifier.k_class, name);
-        int lt1 = LT(1);
-        if (lt1 == IToken.tCOLON) {
-            consume();
-            IToken bc = consume(IToken.tIDENTIFIER);
-            IASTName bname = nodeFactory.newName(bc.getCharImage());
-            ((ASTNode) bname).setOffsetAndLength(bc.getOffset(), bc.getLength());
-            IObjCASTBaseSpecifier base = nodeFactory.newBaseSpecifier(bname, false);
-            ((ASTNode) base).setOffsetAndLength((ASTNode) bname);
-            astSpecifier.addBaseSpecifier(base);
-            lt1 = LT(1);
-        }
-        if (lt1 == IToken.tLBRACE) {
-            instanceVariables(astSpecifier);
-            lt1 = LT(1);
-        }
-        implementationDefinitionList(astSpecifier);
-        return astSpecifier;
-    }
-
-    public IObjCASTCompositeTypeSpecifier classInterface() throws EndOfFileException, BacktrackException {
-        IASTName name = identifier();
-        if (name.getSimpleID()[0] == '@') {
-            throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, ((ASTNode) name).getOffset(),
-                    ((ASTNode) name).getLength()));
-        }
-        IObjCASTCompositeTypeSpecifier astSpecifier = nodeFactory.newCompositeTypeSpecifier(
-                IObjCASTCompositeTypeSpecifier.k_class, name);
-        int lt1 = LT(1);
-        if (lt1 == IToken.tCOLON) {
-            consume();
-            IToken bc = consume(IToken.tIDENTIFIER);
-            IASTName bname = nodeFactory.newName(bc.getCharImage());
-            ((ASTNode) bname).setOffsetAndLength(bc.getOffset(), bc.getLength());
-            IObjCASTBaseSpecifier base = nodeFactory.newBaseSpecifier(bname, false);
-            ((ASTNode) base).setOffsetAndLength((ASTNode) bname);
-            astSpecifier.addBaseSpecifier(base);
-            lt1 = LT(1);
-        }
-        if (lt1 == IToken.tLT) {
-            protocolReferenceList(astSpecifier);
-            lt1 = LT(1);
-        }
-        if (lt1 == IToken.tLBRACE) {
-            instanceVariables(astSpecifier);
-            lt1 = LT(1);
-        }
-        interfaceDeclarationList(astSpecifier, ObjCDeclarationOptions.INTERFACE_LIST);
-        return astSpecifier;
     }
 
     private IASTDeclSpecifier classMethodDeclaration(int offset, int endOffset) throws EndOfFileException,
@@ -1105,8 +1127,9 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
     }
 
     private final void declarationList(final IASTDeclarationListOwner tu, DeclarationOptions options,
-            boolean upToBrace, String endTokenImage, int codeBranchNesting) {
+            boolean upToBrace, String[] endTokenImages, int codeBranchNesting) {
         final boolean wasActive = isActiveCode();
+        boolean completedDeclarations = false;
         while (true) {
             final boolean ok = acceptInactiveCodeBoundary(codeBranchNesting);
             if (!ok) {
@@ -1132,8 +1155,10 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                 return;
             }
 
-            if (endTokenImage != null && next.getImage().equals(endTokenImage) && active == wasActive) {
-                return;
+            for (String endTokenImage : endTokenImages) {
+                if (endTokenImage != null && next.getImage().equals(endTokenImage) && active == wasActive) {
+                    return;
+                }
             }
 
             final int offset = next.getOffset();
@@ -1141,9 +1166,20 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             next = null; // don't hold on to the token while parsing namespaces,
             // class bodies, etc.
             try {
+                if (completedDeclarations == true) {
+                    throwBacktrack(declarationMark);
+                }
                 IASTDeclaration declaration = declaration(options);
                 if (((ASTNode) declaration).getLength() == 0 && LTcatchEOF(1) != IToken.tEOC) {
                     declaration = skipProblemDeclaration(offset);
+                }
+                if (declaration instanceof IObjCASTClassMemoryLayoutDeclaration) {
+                    if (tu.getDeclarations(false).length > 0) {
+                        throwBacktrack(
+                                createProblem(IProblem.SYNTAX_ERROR, declarationMark.getEndOffset(), 0),
+                                declaration);
+                    }
+                    completedDeclarations = true;
                 }
                 addDeclaration(tu, declaration, active);
             } catch (BacktrackException bt) {
@@ -1179,7 +1215,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             ObjCDeclarationOptions options = (ObjCDeclarationOptions) option;
             final IToken beforeConsume = mark();
             if (beforeConsume.getType() == IToken.tRPAREN
-                    && (options.fIsInterface || options.fIsImplementation || options.fIsMethodParameter || options.fIsProtocol)) {
+                    && (options.fAllowMethods || options.fIsMethodParameter)) {
                 consume();
                 final IToken token = LA(1);
                 final int sOffset = token.getOffset();
@@ -1271,23 +1307,47 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
     private IASTDeclarator declarator(final List<IASTPointerOperator> pointerOps,
             final IASTName declaratorName, final IASTDeclarator nestedDeclarator, final int startingOffset,
             int endOffset, final DeclarationOptions option) throws EndOfFileException, BacktrackException {
+        boolean throwOnAnything = false;
+        if (option instanceof ObjCDeclarationOptions) {
+            if (option.equals(ObjCDeclarationOptions.IMPLEMENTATION_LIST)) {
+                /**
+                 * implementation lists can have non message declarators ie. but
+                 * they simply are identifiers and nothing else.
+                 * <code> \@dynamic X; </code>
+                 */
+                throwOnAnything = true;
+            } else if (option.equals(ObjCDeclarationOptions.INTERFACE_LIST)
+                    || option.equals(ObjCDeclarationOptions.PROTOCOL_LIST)) {
+                /* non-message declarators not allowed. */
+                throwBacktrack(LA(1));
+            }
+        }
         IASTDeclarator result = null;
         int lt1;
         loop: while (true) {
             lt1 = LTcatchEOF(1);
             switch (lt1) {
                 case IToken.tLPAREN:
+                    if (throwOnAnything) {
+                        throwBacktrack(LA(1));
+                    }
                     result = functionDeclarator(isAbstract(declaratorName, nestedDeclarator) ? DeclarationOptions.PARAMETER
                             : DeclarationOptions.C_PARAMETER_NON_ABSTRACT);
                     setDeclaratorID(result, declaratorName, nestedDeclarator);
                     break loop;
 
                 case IToken.tLBRACKET:
+                    if (throwOnAnything) {
+                        throwBacktrack(LA(1));
+                    }
                     result = arrayDeclarator();
                     setDeclaratorID(result, declaratorName, nestedDeclarator);
                     break loop;
 
                 case IToken.tCOLON:
+                    if (throwOnAnything) {
+                        throwBacktrack(LA(1));
+                    }
                     if (!option.fAllowBitField) {
                         throwBacktrack(LA(1));
                     }
@@ -1298,13 +1358,13 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
                 case IGCCToken.t__attribute__: // if __attribute__ is after a
                     // declarator
-                    if (!supportAttributeSpecifiers) {
+                    if (!supportAttributeSpecifiers || throwOnAnything) {
                         throwBacktrack(LA(1));
                     }
                     __attribute_decl_seq(true, supportDeclspecSpecifiers);
                     break;
                 case IGCCToken.t__declspec:
-                    if (!supportDeclspecSpecifiers) {
+                    if (!supportDeclspecSpecifiers || throwOnAnything) {
                         throwBacktrack(LA(1));
                     }
                     __attribute_decl_seq(supportAttributeSpecifiers, true);
@@ -1325,6 +1385,9 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         }
 
         if (lt1 != 0 && LT(1) == IToken.t_asm) { // asm labels bug 226121
+            if (throwOnAnything) {
+                throwBacktrack(LA(1));
+            }
             consume();
             endOffset = asmExpression(null).getEndOffset();
 
@@ -1332,6 +1395,9 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         }
 
         for (IASTPointerOperator po : pointerOps) {
+            if (throwOnAnything) {
+                throwBacktrack(LA(1));
+            }
             result.addPointerOperator(po);
         }
 
@@ -1344,52 +1410,48 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             final DeclarationOptions option) throws EndOfFileException, BacktrackException {
         IASTDeclarator result = null;
         int lt1;
+
+        ObjCDeclarationOptions option2 = null;
+        if (option instanceof ObjCDeclarationOptions) {
+            option2 = (ObjCDeclarationOptions) option;
+        }
+
         loop: while (true) {
             lt1 = LTcatchEOF(1);
             switch (lt1) {
                 case IToken.tSEMI:
-                    if (option instanceof ObjCDeclarationOptions
-                            && ((ObjCDeclarationOptions) option).fIsMethodParameter) {
+                    if (option2 != null && option2.fIsMethodParameter) {
                         result = nodeFactory.newDeclarator(declaratorName);
                         ((ASTNode) result).setOffsetAndLength(startingOffset, endOffset - startingOffset);
-                    } else {
+                    } else if (option2 != null && !option2.fIsImplementation) {
                         result = nodeFactory.newMethodDeclarator(declaratorName);
-                        if (option instanceof ObjCDeclarationOptions
-                                && ((ObjCDeclarationOptions) option).fIsProtocol) {
+                        if (option2.equals(ObjCDeclarationOptions.PROTOCOL_LIST)) {
                             ((IObjCASTMethodDeclarator) result).setProtocolMethod(true);
                         }
                         ((ASTNode) result).setOffsetAndLength(startingOffset, endOffset - startingOffset);
                     }
                     break loop;
                 case IToken.tCOLON:
-                    if (option instanceof ObjCDeclarationOptions) {
-                        if (((ObjCDeclarationOptions) option).fIsMethodParameter) {
+                    if (option2 != null) {
+                        if (option2.fIsMethodParameter) {
                             result = nodeFactory.newDeclarator(declaratorName);
-                        } else if (((ObjCDeclarationOptions) option).fIsImplementation) {
-                            result = methodDeclarator(ObjCDeclarationOptions.IMPLEMENTATION_METHOD_PARAMETER,
-                                    declaratorName);
-                        } else if (((ObjCDeclarationOptions) option).fIsInterface) {
-                            result = methodDeclarator(ObjCDeclarationOptions.INTERFACE_METHOD_PARAMETER,
-                                    declaratorName);
-                        } else if (((ObjCDeclarationOptions) option).fIsProtocol) {
-                            result = methodDeclarator(ObjCDeclarationOptions.PROTOCOL_METHOD_PARAMETER,
-                                    declaratorName);
+                        } else if (option2.fAllowMethods) {
+                            result = methodDeclarator(ObjCDeclarationOptions.METHOD_PARAMETER, declaratorName);
                         }
                     }
 
                     break loop;
                 case IToken.tIDENTIFIER:
-                    if (option instanceof ObjCDeclarationOptions
-                            && ((ObjCDeclarationOptions) option).fIsMethodParameter) {
+                    if (option2 != null && option2.fIsMethodParameter) {
                         result = nodeFactory.newDeclarator(declaratorName);
                         ((ASTNode) result).setOffsetAndLength((ASTNode) declaratorName);
                     }
                     break loop;
                 case IToken.tLBRACE:
-                    if (option instanceof ObjCDeclarationOptions) {
-                        if (((ObjCDeclarationOptions) option).fIsMethodParameter) {
+                    if (option2 != null) {
+                        if (option2.fIsMethodParameter) {
                             result = nodeFactory.newDeclarator(declaratorName);
-                        } else if (((ObjCDeclarationOptions) option).fIsImplementation) {
+                        } else if (option2.fAllowMethods && option2.fIsImplementation) {
                             result = nodeFactory.newFunctionDeclarator(declaratorName);
                         }
                     }
@@ -1426,9 +1488,12 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         IASTDeclSpecifier result = null;
         IASTExpression typeofExpression = null;
         IASTProblem problem = null;
+        IObjCASTPropertyAttribute[] propertyAttributes = IObjCASTPropertyAttribute.EMPTY_ATTRIBUTE_ARRAY;
 
         boolean encounteredRawType = false;
         boolean encounteredTypename = false;
+        boolean encounteredObjC = false;
+        int index = 0;
 
         declSpecifiers: for (;;) {
             final int lt1 = LTcatchEOF(1);
@@ -1436,49 +1501,274 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                 case 0: // eof
                     break declSpecifiers;
                 case IObjCToken.t_AtImplementation:
-                    if (!declOption.equals(ObjCDeclarationOptions.INSTANCE_VARIABLES)) {
+                    if (index != 0) {
+                        throwBacktrack(LA(1));
+                    }
+                    if (declOption.equals(DeclarationOptions.GLOBAL)) {
                         result = implementationDeclSpecifierSeq(declOption);
-                        return result;
+                        endOffset = calculateEndOffset(result);
+                        encounteredObjC = true;
                     }
                     break declSpecifiers;
                 case IObjCToken.t_AtProtocol:
-                    if (!declOption.equals(ObjCDeclarationOptions.INSTANCE_VARIABLES)) {
+                    if (index != 0) {
+                        throwBacktrack(LA(1));
+                    }
+                    if (declOption.equals(DeclarationOptions.GLOBAL)) {
                         result = protocolDeclSpecifierSeq(declOption);
-                        return result;
+                        endOffset = calculateEndOffset(result);
+                        encounteredObjC = true;
                     }
                     break declSpecifiers;
                 case IObjCToken.t_AtInterface:
-                    if (!declOption.equals(ObjCDeclarationOptions.INSTANCE_VARIABLES)) {
+                    if (index != 0) {
+                        throwBacktrack(LA(1));
+                    }
+                    if (declOption.equals(DeclarationOptions.GLOBAL)) {
                         result = interfaceDeclSpecifierSeq(declOption);
-                        return result;
+                        endOffset = calculateEndOffset(result);
+                        encounteredObjC = true;
                     }
                     break declSpecifiers;
+
                 case IToken.tPLUS:
+                    if (index != 0) {
+                        throwBacktrack(LA(1));
+                    }
                     endOffset = consume().getEndOffset();
                     if (declOption.equals(ObjCDeclarationOptions.IMPLEMENTATION_LIST)) {
                         result = classMethodDefinition(offset, endOffset);
-                        return result;
-                    } else if (declOption.equals(ObjCDeclarationOptions.INTERFACE_LIST)) {
+                        encounteredObjC = true;
+                    } else if (declOption.equals(ObjCDeclarationOptions.INTERFACE_LIST)
+                            || declOption.equals(ObjCDeclarationOptions.PROTOCOL_LIST)) {
                         result = classMethodDeclaration(offset, endOffset);
-                        return result;
-                    } else if (declOption.equals(ObjCDeclarationOptions.PROTOCOL_LIST)) {
-                        result = classMethodDeclaration(offset, endOffset);
-                        return result;
+                        encounteredObjC = true;
                     }
                     break declSpecifiers;
+
                 case IToken.tMINUS:
+                    if (index != 0) {
+                        throwBacktrack(LA(1));
+                    }
                     endOffset = consume().getEndOffset();
                     if (declOption.equals(ObjCDeclarationOptions.IMPLEMENTATION_LIST)) {
                         result = instanceMethodDefinition(offset, endOffset);
-                        return result;
-                    } else if (declOption.equals(ObjCDeclarationOptions.INTERFACE_LIST)) {
+                        encounteredObjC = true;
+                    } else if (declOption.equals(ObjCDeclarationOptions.INTERFACE_LIST)
+                            || declOption.equals(ObjCDeclarationOptions.PROTOCOL_LIST)) {
                         result = instanceMethodDeclaration(offset, endOffset);
-                        return result;
-                    } else if (declOption.equals(ObjCDeclarationOptions.PROTOCOL_LIST)) {
-                        result = instanceMethodDeclaration(offset, endOffset);
-                        return result;
+                        encounteredObjC = true;
                     }
                     break declSpecifiers;
+
+                case IObjCToken.t_AtDynamic:
+                case IObjCToken.t_AtSynthesize:
+                    if (index != 0) {
+                        throwBacktrack(LA(1));
+                    }
+                    if (declOption.equals(ObjCDeclarationOptions.IMPLEMENTATION_LIST)) {
+                        endOffset = consume().getEndOffset();
+                        options |= PROPERTY;
+                        storageClass = lt1 == IObjCToken.t_AtSynthesize ? IObjCASTPropertyDeclSpecifier.sc_synthesized
+                                : IObjCASTPropertyDeclSpecifier.sc_dynamic;
+                        encounteredObjC = true;
+                    }
+                    break declSpecifiers;
+
+                /* property storage class specifiers */
+                case IObjCToken.t_IBOutlet:
+                    options |= PROPERTY;
+                    storageClass = IObjCASTPropertyDeclSpecifier.sc_IBOutlet;
+                    endOffset = consume().getEndOffset();
+                    break;
+                case IObjCToken.t__strong:
+                    options |= PROPERTY;
+                    storageClass = IObjCASTPropertyDeclSpecifier.sc__strong;
+                    endOffset = consume().getEndOffset();
+                    break;
+                case IObjCToken.t__weak:
+                    options |= PROPERTY;
+                    storageClass = IObjCASTPropertyDeclSpecifier.sc__weak;
+                    endOffset = consume().getEndOffset();
+                    break;
+
+                /* TODO: Refactor this into its own method */
+                case IObjCToken.t_AtProperty:
+                    if (index != 0) {
+                        throwBacktrack(LA(1));
+                    }
+                    if (declOption.equals(ObjCDeclarationOptions.INTERFACE_LIST)) {
+                        options |= PROPERTY;
+                        endOffset = consume().getEndOffset();
+                        IToken tmp = LA(1);
+                        if (tmp.getType() == IToken.tLPAREN) {
+                            consume();
+                            boolean ateComma = true;
+                            innerLoop: for (;;) {
+                                IASTName methodName = null;
+                                IObjCASTPropertyAttribute attr = null;
+                                int endOff = 0;
+                                final int innerlt1 = LTcatchEOF(1);
+                                switch (innerlt1) {
+                                    case 0:
+                                    case IToken.tCOMPLETION:
+                                    case IToken.tEOC:
+                                        break innerLoop;
+                                    case IToken.tRPAREN:
+                                        if (ateComma) {
+                                            throwBacktrack(LA(1));
+                                        }
+                                        endOffset = consume().getEndOffset();
+                                        break innerLoop;
+                                    case IObjCToken.t_getter:
+                                        if (!ateComma) {
+                                            throwBacktrack(LA(1));
+                                        }
+                                        tmp = consume();
+                                        consume(IToken.tASSIGN);
+                                        methodName = identifier();
+                                        attr = nodeFactory
+                                                .newPropertyAttribute(IObjCASTPropertyAttribute.attr_getter);
+                                        attr.setMethodName(methodName);
+                                        endOff = ((ASTNode) methodName).getLength()
+                                                + ((ASTNode) methodName).getOffset();
+                                        ateComma = false;
+                                        break;
+                                    case IObjCToken.t_setter:
+                                        if (!ateComma) {
+                                            throwBacktrack(LA(1));
+                                        }
+                                        tmp = consume();
+                                        consume(IToken.tASSIGN);
+                                        methodName = identifier();
+                                        attr = nodeFactory
+                                                .newPropertyAttribute(IObjCASTPropertyAttribute.attr_setter);
+                                        attr.setMethodName(methodName);
+                                        endOff = ((ASTNode) methodName).getLength()
+                                                + ((ASTNode) methodName).getOffset();
+                                        ateComma = false;
+                                        break;
+                                    case IObjCToken.t_readonly:
+                                        if (!ateComma) {
+                                            throwBacktrack(LA(1));
+                                        }
+                                        tmp = consume();
+                                        attr = nodeFactory
+                                                .newPropertyAttribute(IObjCASTPropertyAttribute.attr_readonly);
+                                        ateComma = false;
+                                        break;
+                                    case IObjCToken.t_readwrite:
+                                        if (!ateComma) {
+                                            throwBacktrack(LA(1));
+                                        }
+                                        tmp = consume();
+                                        attr = nodeFactory
+                                                .newPropertyAttribute(IObjCASTPropertyAttribute.attr_readwrite);
+                                        ateComma = false;
+                                        break;
+                                    case IObjCToken.t_assign:
+                                        if (!ateComma) {
+                                            throwBacktrack(LA(1));
+                                        }
+                                        tmp = consume();
+                                        attr = nodeFactory
+                                                .newPropertyAttribute(IObjCASTPropertyAttribute.attr_assign);
+                                        ateComma = false;
+                                        break;
+                                    case IObjCToken.t_retain:
+                                        if (!ateComma) {
+                                            throwBacktrack(LA(1));
+                                        }
+                                        tmp = consume();
+                                        attr = nodeFactory
+                                                .newPropertyAttribute(IObjCASTPropertyAttribute.attr_retain);
+                                        ateComma = false;
+                                        break;
+                                    case IObjCToken.t_copy:
+                                        if (!ateComma) {
+                                            throwBacktrack(LA(1));
+                                        }
+                                        tmp = consume();
+                                        attr = nodeFactory
+                                                .newPropertyAttribute(IObjCASTPropertyAttribute.attr_copy);
+                                        ateComma = false;
+                                        break;
+                                    case IObjCToken.t_nonatomic:
+                                        if (!ateComma) {
+                                            throwBacktrack(LA(1));
+                                        }
+                                        tmp = consume();
+                                        attr = nodeFactory
+                                                .newPropertyAttribute(IObjCASTPropertyAttribute.attr_nonatomic);
+                                        ateComma = false;
+                                        break;
+                                    default:
+                                        throwBacktrack(LA(1));
+                                        break;
+                                }
+                                setRange(attr, tmp.getOffset(), endOff);
+                                propertyAttributes = (IObjCASTPropertyAttribute[]) ArrayUtil.append(
+                                        IObjCASTPropertyAttribute.class, propertyAttributes, attr);
+                                if (LT(1) == IToken.tCOMMA) {
+                                    consume();
+                                    ateComma = true;
+                                }
+                            }
+                            propertyAttributes = (IObjCASTPropertyAttribute[]) ArrayUtil.removeNulls(
+                                    IObjCASTPropertyAttribute.class, propertyAttributes);
+                        }
+                    }
+                    break;
+
+                case IObjCToken.t_bycopy:
+                    if (declOption instanceof ObjCDeclarationOptions
+                            && ((ObjCDeclarationOptions) declOption).fAllowProtocolParamModifiers) {
+                        options |= BYCOPY;
+                        endOffset = consume().getEndOffset();
+                        break;
+                    }
+                    break declSpecifiers;
+                case IObjCToken.t_byref:
+                    if (declOption instanceof ObjCDeclarationOptions
+                            && ((ObjCDeclarationOptions) declOption).fAllowProtocolParamModifiers) {
+                        options |= BYREF;
+                        endOffset = consume().getEndOffset();
+                        break;
+                    }
+                    break declSpecifiers;
+                case IObjCToken.t_in:
+                    if (declOption instanceof ObjCDeclarationOptions
+                            && ((ObjCDeclarationOptions) declOption).fAllowProtocolParamModifiers) {
+                        options |= IN;
+                        endOffset = consume().getEndOffset();
+                        break;
+                    }
+                    break declSpecifiers;
+                case IObjCToken.t_out:
+                    if (declOption instanceof ObjCDeclarationOptions
+                            && ((ObjCDeclarationOptions) declOption).fAllowProtocolParamModifiers) {
+                        options |= OUT;
+                        endOffset = consume().getEndOffset();
+                        break;
+                    }
+                    break declSpecifiers;
+                case IObjCToken.t_inout:
+                    if (declOption instanceof ObjCDeclarationOptions
+                            && ((ObjCDeclarationOptions) declOption).fAllowProtocolParamModifiers) {
+                        options |= INOUT;
+                        endOffset = consume().getEndOffset();
+                        break;
+                    }
+                    break declSpecifiers;
+                case IObjCToken.t_oneway:
+                    if (declOption instanceof ObjCDeclarationOptions
+                            && ((ObjCDeclarationOptions) declOption).fAllowProtocolParamModifiers) {
+                        options |= ONEWAY;
+                        endOffset = consume().getEndOffset();
+                        break;
+                    }
+                    break declSpecifiers;
+
                 // storage class specifiers
                 case IToken.t_auto:
                     storageClass = IASTDeclSpecifier.sc_auto;
@@ -1627,10 +1917,9 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                         endOffset = calculateEndOffset(result);
                         encounteredTypename = true;
                         break declSpecifiers;
-                    } else if (parsingProtocolDeclSpecList) {
-
                     }
                     //$FALL-THROUGH$
+
                 case IToken.tCOMPLETION:
                 case IToken.tEOC:
                     if (encounteredTypename || encounteredRawType) {
@@ -1643,11 +1932,11 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                         }
                     } catch (FoundAggregateInitializer e) {
                         e.fDeclSpec = buildSimpleDeclSpec(storageClass, simpleType, options, isLong,
-                                typeofExpression, offset, endOffset);
+                                typeofExpression, propertyAttributes, offset, endOffset);
                         throw e;
                     } catch (FoundDeclaratorException e) {
                         e.declSpec = buildSimpleDeclSpec(storageClass, simpleType, options, isLong,
-                                typeofExpression, offset, endOffset);
+                                typeofExpression, propertyAttributes, offset, endOffset);
 
                         IToken mark = mark();
                         try {
@@ -1656,8 +1945,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                             final IASTDeclarator altDtor = initDeclarator(declOption);
                             if (LA(1) == e.currToken) {
                                 e.altDeclarator = altDtor;
-                                e.altSpec = buildNamedTypeSpecifier(id, storageClass, options, offset,
-                                        calculateEndOffset(id));
+                                e.altSpec = buildNamedTypeSpecifier(id, storageClass, options,
+                                        propertyAttributes, offset, calculateEndOffset(id));
                             }
                         } catch (FoundAggregateInitializer lie) {
                             lie.fDeclSpec = e.declSpec;
@@ -1766,13 +2055,14 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                     break declSpecifiers;
             }
 
-            if (encounteredRawType && encounteredTypename) {
+            if (encounteredRawType && encounteredTypename && encounteredObjC) {
                 throwBacktrack(LA(1));
             }
+            index++;
         }
 
         // check for empty specification
-        if (!encounteredRawType && !encounteredTypename && LT(1) != IToken.tEOC
+        if (!encounteredRawType && !encounteredTypename && !encounteredObjC && LT(1) != IToken.tEOC
                 && !declOption.fAllowEmptySpecifier) {
             if (offset == endOffset) {
                 throwBacktrack(LA(1));
@@ -1794,51 +2084,16 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             if (problem != null) {
                 throwBacktrack(problem, result);
             }
-
             return result;
         }
 
         if (identifier != null) {
-            return buildNamedTypeSpecifier(identifier, storageClass, options, offset, endOffset);
+            return buildNamedTypeSpecifier(identifier, storageClass, options, propertyAttributes, offset,
+                    endOffset);
         }
 
-        return buildSimpleDeclSpec(storageClass, simpleType, options, isLong, typeofExpression, offset,
-                endOffset);
-    }
-
-    private void delimitedDeclarationListByImage(final IASTDeclarationListOwner decl, int offset,
-            ObjCDeclarationOptions opts, final String startImage, final String stopImage)
-            throws BacktrackException, EndOfFileException {
-        int codeBranchNesting = getCodeBranchNesting();
-
-        if (startImage != null) {
-            final IToken s1 = consume();
-            if (!s1.getImage().equals(startImage)) {
-                throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, getEndOffset(), 0), decl);
-            }
-        }
-
-        declarationList(decl, opts, false, stopImage, codeBranchNesting);
-
-        final IToken la1 = LAcatchEOF(1);
-        if (stopImage == null || /* la1 == null for EOF */la1 == null || la1.getImage().equals(stopImage)) {
-            int endOffset = offset;
-            if (la1 != null) {
-                endOffset = la1.getEndOffset();
-            } else {
-                endOffset = ((ASTNode) decl).getOffset() + ((ASTNode) decl).getLength();
-            }
-            setRange(decl, offset, endOffset);
-            return;
-        }
-
-        final int lt1 = la1.getType();
-        final int endOffset = getEndOffset();
-        setRange(decl, offset, endOffset);
-        if (lt1 == IToken.tEOC || (lt1 == 0 && decl instanceof IASTCompositeTypeSpecifier)) {
-            return;
-        }
-        throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, endOffset, 0), decl);
+        return buildSimpleDeclSpec(storageClass, simpleType, options, isLong, typeofExpression,
+                propertyAttributes, offset, endOffset);
     }
 
     private List<? extends IObjCASTDesignator> designatorList() throws EndOfFileException, BacktrackException {
@@ -2166,12 +2421,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         final int startOff = impl.getOffset();
         switch (LT(1)) {
             case IToken.tIDENTIFIER:
-                IObjCASTCompositeTypeSpecifier declSpecifier;
-                if (LT(2) == IToken.tLPAREN) {
-                    declSpecifier = categoryImplementation();
-                } else {
-                    declSpecifier = classImplementation();
-                }
+                IASTName name = identifier();
+                IObjCASTCompositeTypeSpecifier declSpecifier = buildCompositeImplementationDeclSpec(name);
                 int endOff = ((ASTNode) declSpecifier).getLength() + ((ASTNode) declSpecifier).getOffset();
                 ((ASTNode) declSpecifier).setOffsetAndLength(startOff, endOff - startOff);
                 return declSpecifier;
@@ -2183,8 +2434,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
     private void implementationDefinitionList(IObjCASTCompositeTypeSpecifier astSpecifier)
             throws BacktrackException, EndOfFileException {
-        delimitedDeclarationListByImage(astSpecifier, 0, ObjCDeclarationOptions.IMPLEMENTATION_LIST, null,
-                "@end");//$NON-NLS-1$
+        terminatedDeclarationList(astSpecifier, 0, ObjCDeclarationOptions.IMPLEMENTATION_LIST, null,
+                terminators);
     }
 
     @Override
@@ -2198,6 +2449,20 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
         IASTInitializer i = optionalCInitializer();
         if (i != null) {
+            ObjCDeclarationOptions option2 = (ObjCDeclarationOptions) option;
+            if (option2.fIsProperty) {
+                if (option2.fAllowInitializer) {
+                    if (i instanceof IASTInitializerExpression) {
+                        IASTInitializerExpression e = (IASTInitializerExpression) i;
+                        if (!(e.getExpression() instanceof IASTIdExpression)) {
+                            throwBacktrack(
+                                    createProblem(IProblem.SYNTAX_ERROR, ((ASTNode) i).getOffset(), 0), i);
+                        }
+                    }
+                } else {
+                    throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, ((ASTNode) i).getOffset(), 0), i);
+                }
+            }
             d.setInitializer(i);
             ((ASTNode) d).setLength(calculateEndOffset(i) - ((ASTNode) d).getOffset());
         }
@@ -2221,7 +2486,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
     public void interfaceDeclarationList(IObjCASTCompositeTypeSpecifier decl,
             final ObjCDeclarationOptions options) throws EndOfFileException, BacktrackException {
-        delimitedDeclarationListByImage(decl, 0, options, null, "@end");//$NON-NLS-1$
+        terminatedDeclarationList(decl, 0, options, null, terminators);
     }
 
     public IASTDeclSpecifier interfaceDeclSpecifierSeq(final DeclarationOptions declOption)
@@ -2231,11 +2496,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         final int startOff = intf.getOffset();
         switch (LT(1)) {
             case IToken.tIDENTIFIER:
-                if (LT(2) == IToken.tLPAREN) {
-                    declSpecifier = categoryInterface();
-                } else {
-                    declSpecifier = classInterface();
-                }
+                IASTName name = identifier();
+                declSpecifier = buildCompositeInterfaceDeclSpec(name);
                 int endOff = ((ASTNode) declSpecifier).getLength() + ((ASTNode) declSpecifier).getOffset();
                 ((ASTNode) declSpecifier).setOffsetAndLength(startOff, endOff - startOff);
                 return declSpecifier;
@@ -2300,7 +2562,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             }
         }
         IASTStandardFunctionDeclarator fc = nodeFactory.newMethodDeclarator(null);
-        if (option instanceof ObjCDeclarationOptions && ((ObjCDeclarationOptions) option).fIsProtocol) {
+        if (option instanceof ObjCDeclarationOptions
+                && ((ObjCDeclarationOptions) option).fAllowOptionalityLabel) {
             ((IObjCASTMethodDeclarator) fc).setProtocolMethod(true);
         }
         fc.setVarArgs(encounteredVarArgs);
@@ -2579,6 +2842,28 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         return switch_statement;
     }
 
+    private IASTStatement parseSynchronizedStatement() throws EndOfFileException, BacktrackException {
+        int startOffset;
+        startOffset = consume().getOffset();
+        consume(IToken.tLPAREN);
+        IASTExpression syncObj = condition(true);
+        switch (LT(1)) {
+            case IToken.tRPAREN:
+                consume();
+                break;
+            case IToken.tEOC:
+                break;
+            default:
+                throwBacktrack(LA(1));
+        }
+        IASTStatement block = compoundStatement();
+        IObjCASTSynchronizedBlockStatement stmt = nodeFactory.newSynchronizedStatement(syncObj, block);
+        ((ASTNode) stmt).setOffsetAndLength(startOffset, (block != null ? calculateEndOffset(block) : LA(1)
+                .getEndOffset())
+                - startOffset);
+        return stmt;
+    }
+
     protected IASTStatement parseTryStatement() throws EndOfFileException, BacktrackException {
         int startO = consume().getOffset();
         IASTStatement tryBlock = compoundStatement();
@@ -2814,28 +3099,17 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
     }
 
-    private IObjCASTCompositeTypeSpecifier protocolDeclaration() throws EndOfFileException,
-            BacktrackException {
-        IASTName name = identifier();
-        IObjCASTCompositeTypeSpecifier astSpecifier = nodeFactory.newCompositeTypeSpecifier(
-                IObjCASTCompositeTypeSpecifier.k_protocol, name);
-        if (LT(1) == IToken.tLT) {
-            protocolReferenceList(astSpecifier);
-        }
-        interfaceDeclarationList(astSpecifier, ObjCDeclarationOptions.PROTOCOL_LIST);
-        return astSpecifier;
-    }
-
     public IASTDeclSpecifier protocolDeclSpecifierSeq(final DeclarationOptions declOption)
             throws EndOfFileException, BacktrackException {
         IASTDeclSpecifier spec;
         IToken mark = mark();
-        switch (LTcatchEOF(2)) {
+        consume();
+        switch (LTcatchEOF(1)) {
             case IToken.tIDENTIFIER:
                 try {
-                    IToken proto = consume();
-                    spec = protocolDeclaration();
-                    ((ASTNode) spec).setOffsetAndLength(proto.getOffset(), ((ASTNode) spec).getLength());
+                    IASTName name = identifier();
+                    spec = buildCompositeProtocolDeclSpec(name);
+                    ((ASTNode) spec).setOffsetAndLength(mark.getOffset(), ((ASTNode) spec).getLength());
                 } catch (BacktrackException e) {
                     backup(mark);
                     spec = elaboratedTypeSpecifier(true);
@@ -2960,13 +3234,26 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         IASTDeclSpecifier altDeclSpec = null;
         IASTDeclarator altDeclarator = null;
         IToken markBeforDtor = null;
+        boolean declSpecIsProperty = false;
+        DeclarationOptions newDeclOption = declOption;
+        int k = 0;
+
         try {
             declSpec = declSpecifierSeq(declOption);
-            int k = 0;
             if (declSpec instanceof IObjCASTCompositeTypeSpecifier) {
                 k = ((IObjCASTCompositeTypeSpecifier) declSpec).getKey();
             } else if (declSpec instanceof IObjCASTElaboratedTypeSpecifier) {
                 k = ((IObjCASTElaboratedTypeSpecifier) declSpec).getKind();
+            } else if (declSpec instanceof IObjCASTPropertyDeclSpecifier) {
+                k = declSpec.getStorageClass();
+                declSpecIsProperty = true;
+                if (k == IObjCASTPropertyDeclSpecifier.sc_dynamic) {
+                    newDeclOption = ObjCDeclarationOptions.DYNAMIC_PROPERTY_DEF;
+                } else if (k == IObjCASTPropertyDeclSpecifier.sc_synthesized) {
+                    newDeclOption = ObjCDeclarationOptions.SYNTHESIZED_PROPERTY_DEF;
+                } else {
+                    newDeclOption = ObjCDeclarationOptions.PROPERTY_DECL;
+                }
             }
             final int lt1 = LTcatchEOF(1);
             switch (lt1) {
@@ -2975,7 +3262,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                 case IToken.tSEMI:
                     parseDtors = false;
                     insertSemi = (lt1 == 0 && !(k == IObjCASTCompositeTypeSpecifier.k_category
-                            || k == IObjCASTCompositeTypeSpecifier.k_class || k == IObjCASTCompositeTypeSpecifier.k_protocol));
+                            || k == IObjCASTCompositeTypeSpecifier.k_class
+                            || k == IObjCASTCompositeTypeSpecifier.k_protocol || declSpecIsProperty));
                     if (lt1 == IToken.tSEMI) {
                         endOffset = consume().getEndOffset();
                     } else {
@@ -2988,6 +3276,24 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                             || k == IObjCASTCompositeTypeSpecifier.k_class || k == IObjCASTCompositeTypeSpecifier.k_protocol);
                     endOffset = consume().getEndOffset();
                     break;
+                case IObjCToken.t_AtImplementation:
+                case IObjCToken.t_AtInterface:
+                case IObjCToken.t_AtProtocol:
+                    if (k == IObjCASTCompositeTypeSpecifier.k_category
+                            || k == IObjCASTCompositeTypeSpecifier.k_class
+                            || k == IObjCASTCompositeTypeSpecifier.k_protocol) {
+                        /*
+                         * Handle when we are starting a new class above an old
+                         * one.. this isn't truly, valid syntax but we shouldn't
+                         * barf TODO: Add a problem marker for the missing @end
+                         */
+                        parseDtors = false;
+                        insertSemi = false;
+                        /* Don't consume */
+                        endOffset = LA(1).getEndOffset();
+                        break;
+                    }
+                    //$FALL-THROUGH$
                 case IToken.tCOMMA:
                     if (declSpec instanceof IObjCASTElaboratedTypeSpecifier
                             && k == IObjCASTElaboratedTypeSpecifier.k_class) {
@@ -3000,7 +3306,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                 default:
                     markBeforDtor = mark();
                     try {
-                        dtor = initDeclarator(declOption);
+                        dtor = initDeclarator(newDeclOption);
                     } catch (BacktrackException e) {
                         backup(markBeforDtor);
                     } catch (EndOfFileException e) {
@@ -3015,7 +3321,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             // large
             declarationMark = null;
             markBeforDtor = null;
-            dtor = addInitializer(lie, declOption);
+            dtor = addInitializer(lie, newDeclOption);
         } catch (FoundDeclaratorException e) {
             if (e.altSpec != null) {
                 declSpec = e.altSpec;
@@ -3040,16 +3346,23 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         IASTDeclarator[] declarators = IASTDeclarator.EMPTY_DECLARATOR_ARRAY;
         if (parseDtors) {
             declarators = new IASTDeclarator[] { dtor };
-            while (LTcatchEOF(1) == IToken.tCOMMA) {
+            while (!parsingClassDeclarationList && LTcatchEOF(1) == IToken.tCOMMA) {
                 consume();
                 try {
-                    dtor = initDeclarator(declOption);
+                    dtor = initDeclarator(newDeclOption);
                 } catch (FoundAggregateInitializer e) {
                     // scalability: don't keep references to tokens, initializer
                     // may be large
                     declarationMark = null;
                     markBeforDtor = null;
-                    dtor = addInitializer(e, declOption);
+                    dtor = addInitializer(e, newDeclOption);
+                }
+                if (k != IObjCASTPropertyDeclSpecifier.sc_dynamic
+                        && k != IObjCASTPropertyDeclSpecifier.sc_synthesized && dtor != null
+                        && declSpecIsProperty) {
+                    IASTProblem problem = createProblem(IProblem.SYNTAX_ERROR, ((ASTNode) dtor).getOffset(),
+                            0);
+                    throwBacktrack(problem, dtor);
                 }
                 declarators = (IASTDeclarator[]) ArrayUtil.append(IASTDeclarator.class, declarators, dtor);
             }
@@ -3059,15 +3372,19 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             switch (lt1) {
                 case IToken.tLBRACE:
                     return functionDefinition(firstOffset, declSpec, declarators);
-
                 case IToken.tSEMI:
                     endOffset = consume().getEndOffset();
                     break;
                 case IToken.tEOC:
                     endOffset = figureEndOffset(declSpec, declarators);
                     break;
+                case IToken.tIDENTIFIER:
+                    if (parsingClassDeclarationList) {
+                        break;
+                    }
+                    //$FALL-THROUGH$
                 default:
-                    if (declOption != DeclarationOptions.LOCAL) {
+                    if (newDeclOption != DeclarationOptions.LOCAL) {
                         insertSemi = true;
                         if (markBeforDtor != null) {
                             endOffset = calculateEndOffset(declSpec);
@@ -3095,24 +3412,50 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             }
         }
 
-        // no function body
-        IASTSimpleDeclaration simpleDeclaration = nodeFactory.newSimpleDeclaration(declSpec);
-        for (IASTDeclarator declarator : declarators) {
-            simpleDeclaration.addDeclarator(declarator);
-        }
-
-        setRange(simpleDeclaration, firstOffset, endOffset);
-        if (altDeclSpec != null && altDeclarator != null) {
-            simpleDeclaration = new ObjCASTAmbiguousSimpleDeclaration(simpleDeclaration, altDeclSpec,
-                    altDeclarator);
+        if (declSpec instanceof IObjCASTPropertyDeclSpecifier) {
+            final int sc = declSpec.getStorageClass();
+            if (sc == IObjCASTPropertyDeclSpecifier.sc_dynamic
+                    || sc == IObjCASTPropertyDeclSpecifier.sc_synthesized) {
+                IObjCASTPropertyImplementationDeclaration declaration = nodeFactory
+                        .newPropertyImplementationDeclaration(declSpec);
+                for (IASTDeclarator declarator : declarators) {
+                    declaration.addDeclarator(declarator);
+                }
+                setRange(declaration, firstOffset, endOffset);
+                if (insertSemi) {
+                    IASTProblem problem = createProblem(IProblem.SYNTAX_ERROR, endOffset, 0);
+                    throwBacktrack(problem, declaration);
+                }
+                return declaration;
+            } else {
+                IObjCASTPropertyDeclaration declaration = nodeFactory.newPropertyDeclaration(declSpec,
+                        declarators[0]);
+                setRange(declaration, firstOffset, endOffset);
+                if (insertSemi) {
+                    IASTProblem problem = createProblem(IProblem.SYNTAX_ERROR, endOffset, 0);
+                    throwBacktrack(problem, declaration);
+                }
+                return declaration;
+            }
+        } else {
+            // no function body
+            IASTSimpleDeclaration simpleDeclaration = nodeFactory.newSimpleDeclaration(declSpec);
+            for (IASTDeclarator declarator : declarators) {
+                simpleDeclaration.addDeclarator(declarator);
+            }
             setRange(simpleDeclaration, firstOffset, endOffset);
-        }
+            if (altDeclSpec != null && altDeclarator != null) {
+                simpleDeclaration = new ObjCASTAmbiguousSimpleDeclaration(simpleDeclaration, altDeclSpec,
+                        altDeclarator);
+                setRange(simpleDeclaration, firstOffset, endOffset);
+            }
 
-        if (insertSemi) {
-            IASTProblem problem = createProblem(IProblem.SYNTAX_ERROR, endOffset, 0);
-            throwBacktrack(problem, simpleDeclaration);
+            if (insertSemi) {
+                IASTProblem problem = createProblem(IProblem.SYNTAX_ERROR, endOffset, 0);
+                throwBacktrack(problem, simpleDeclaration);
+            }
+            return simpleDeclaration;
         }
-        return simpleDeclaration;
     }
 
     private IASTSimpleDeclaration simpleSingleDeclaration(DeclarationOptions options)
@@ -3179,6 +3522,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                 return parseNullStatement();
             case IObjCToken.t_AtTry:
                 return parseTryStatement();
+            case IObjCToken.t_AtSynchronized:
+                return parseSynchronizedStatement();
             default:
                 // can be many things:
                 // label
@@ -3189,6 +3534,29 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                 return parseDeclarationOrExpressionStatement(DeclarationOptions.LOCAL);
         }
 
+    }
+
+    protected void structDeclarationListInBraces(final IASTDeclarationListOwner tu, int offset,
+            DeclarationOptions options) throws EndOfFileException, BacktrackException {
+        // consume brace, if requested
+        int codeBranchNesting = getCodeBranchNesting();
+        consume(IToken.tLBRACE);
+
+        declarationList(tu, options, true, new String[0], codeBranchNesting);
+
+        final int lt1 = LTcatchEOF(1);
+        if (lt1 == IToken.tRBRACE) {
+            int endOffset = consume().getEndOffset();
+            setRange(tu, offset, endOffset);
+            return;
+        }
+
+        final int endOffset = getEndOffset();
+        setRange(tu, offset, endOffset);
+        if (lt1 == IToken.tEOC || (lt1 == 0 && tu instanceof IASTCompositeTypeSpecifier)) {
+            return;
+        }
+        throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, endOffset, 0), tu);
     }
 
     /**
@@ -3245,8 +3613,51 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             name = nodeFactory.newName();
         }
         IObjCASTCompositeTypeSpecifier result = nodeFactory.newCompositeTypeSpecifier(classKind, name);
-        declarationListInBraces(result, offset, DeclarationOptions.C_MEMBER);
+        structDeclarationListInBraces(result, offset, DeclarationOptions.C_MEMBER);
         return result;
+    }
+
+    private void terminatedDeclarationList(final IASTDeclarationListOwner decl, int offset,
+            ObjCDeclarationOptions opts, final String startImage, final String[] stopImages)
+            throws BacktrackException, EndOfFileException {
+        int codeBranchNesting = getCodeBranchNesting();
+
+        if (startImage != null) {
+            final IToken s1 = consume();
+            if (!s1.getImage().equals(startImage)) {
+                throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, getEndOffset(), 0), decl);
+            }
+        }
+
+        declarationList(decl, opts, false, stopImages, codeBranchNesting);
+
+        final IToken la1 = LAcatchEOF(1);
+        for (String stopImage : stopImages) {
+            if (stopImage == null || /* la1 == null for EOF */la1 == null || la1.getImage().equals(stopImage)) {
+                int endOffset = offset;
+                if (la1 != null
+                        && (stopImage == null || stopImage.equals(terminators[CORRECT_END_TERMINATOR_INDEX]))) {
+                    endOffset = la1.getEndOffset();
+                } else {
+                    if (la1 == null) {
+                        endOffset = lastTokenFromScanner.getEndOffset();
+                    } else {
+                        endOffset = la1.getOffset();
+                    }
+                    throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, endOffset, 0), decl);
+                }
+                setRange(decl, offset, endOffset);
+                return;
+            }
+        }
+
+        final int lt1 = la1.getType();
+        final int endOffset = getEndOffset();
+        setRange(decl, offset, endOffset);
+        if (lt1 == IToken.tEOC || (lt1 == 0 && decl instanceof IASTCompositeTypeSpecifier)) {
+            return;
+        }
+        throwBacktrack(createProblem(IProblem.SYNTAX_ERROR, endOffset, 0), decl);
     }
 
     @Override

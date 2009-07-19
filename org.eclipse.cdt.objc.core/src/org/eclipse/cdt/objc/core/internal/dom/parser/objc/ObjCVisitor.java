@@ -111,6 +111,7 @@ public class ObjCVisitor extends ASTQueries {
             shouldVisitDeclSpecifiers = true;
             shouldVisitEnumerators = true;
             shouldVisitStatements = true;
+            shouldVisitAttributes = true;
         }
 
         public CollectDeclarationsAction(IBinding binding) {

@@ -18,6 +18,7 @@ import org.eclipse.cdt.core.dom.ast.IASTStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTypeId;
 import org.eclipse.cdt.core.dom.ast.INodeFactory;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier.IObjCASTBaseSpecifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier.IObjCASTCategorySpecifier;
 import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCASTKnRFunctionDeclarator;
 import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCGCCASTArrayRangeDesignator;
 import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCGCCASTSimpleDeclSpecifier;
@@ -33,10 +34,6 @@ import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCGCCASTSimpleDeclSpecif
  */
 public interface IObjCNodeFactory extends INodeFactory {
 
-    public IObjCASTTryBlockStatement newTryBlockStatement(IASTStatement body);
-
-    public IObjCASTCatchHandler newCatchHandler(IASTDeclaration decl, IASTStatement body);
-
     public IObjCASTArrayDesignator newArrayDesignator(IASTExpression exp);
 
     public IObjCASTArrayModifier newArrayModifier(IASTExpression expr);
@@ -45,6 +42,10 @@ public interface IObjCNodeFactory extends INodeFactory {
             IASTExpression ceiling);
 
     public IObjCASTBaseSpecifier newBaseSpecifier(IASTName name, boolean isProtocol);
+
+    public IObjCASTCatchHandler newCatchHandler(IASTDeclaration decl, IASTStatement body);
+
+    public IObjCASTCategorySpecifier newCategorySpecifier(IASTName name);
 
     public IObjCASTCompositeTypeSpecifier newCompositeTypeSpecifier(int key, IASTName name);
 
@@ -59,12 +60,29 @@ public interface IObjCNodeFactory extends INodeFactory {
     public IObjCASTKnRFunctionDeclarator newKnRFunctionDeclarator(IASTName[] parameterNames,
             IASTDeclaration[] parameterDeclarations);
 
+    public IObjCASTClassMemoryLayoutDeclaration newMemoryLayoutDeclaration(IASTName clsName);
+
     public IObjCASTMessageExpression newMessageExpression(IASTExpression objExpr, IASTExpression selectorExpr);
 
     public IObjCASTMessageSelectorExpression newMessageSelectorExpression(IASTExpression selectorId,
             IASTExpression parameters);
 
+    public IObjCASTMethodDeclarator newMethodDeclarator(IASTName name);
+
+    public IObjCASTMethodParameterDeclaration newMethodParameterDeclaration(IASTName selector,
+            IASTDeclSpecifier declSpec, IASTDeclarator declarator);
+
+    public IObjCASTOptionalityLabel newOptionalityLabel(int optionality);
+
     public IObjCASTPointer newPointer();
+
+    public IObjCASTPropertyAttribute newPropertyAttribute(int type);
+
+    public IObjCASTPropertyDeclaration newPropertyDeclaration(IASTDeclSpecifier declSpecifier,
+            IASTDeclarator declarator);
+
+    public IObjCASTPropertyImplementationDeclaration newPropertyImplementationDeclaration(
+            IASTDeclSpecifier declSpecifier);
 
     public IObjCASTProtocolIdExpression newProtocolExpression(IASTName name);
 
@@ -74,20 +92,19 @@ public interface IObjCNodeFactory extends INodeFactory {
 
     public IObjCGCCASTSimpleDeclSpecifier newSimpleDeclSpecifierGCC(IASTExpression typeofExpression);
 
+    public IObjCASTSimpleDeclSpecifier newSimplePropertyDeclSpecifier();
+
+    public IObjCASTSynchronizedBlockStatement newSynchronizedStatement(IASTExpression obj, IASTStatement body);
+
+    public IObjCASTTryBlockStatement newTryBlockStatement(IASTStatement body);
+
+    public IObjCASTTypedefNameSpecifier newTypedefNamePropertySpecifier(IASTName name);
+
     public IObjCASTTypedefNameSpecifier newTypedefNameSpecifier(IASTName name);
 
     public IObjCASTTypeIdInitializerExpression newTypeIdInitializerExpression(IASTTypeId typeId,
             IASTInitializer initializer);
 
     public IObjCASTVisibilityLabel newVisibilityLabel(int visibility);
-
-    public IObjCASTOptionalityLabel newOptionalityLabel(int optionality);
-
-    public IObjCASTMethodDeclarator newMethodDeclarator(IASTName name);
-
-    public IObjCASTMethodParameterDeclaration newMethodParameterDeclaration(IASTName selector,
-            IASTDeclSpecifier declSpec, IASTDeclarator declarator);
-
-    public IObjCASTClassMemoryLayoutDeclaration newMemoryLayoutDeclaration(IASTName clsName);
 
 }

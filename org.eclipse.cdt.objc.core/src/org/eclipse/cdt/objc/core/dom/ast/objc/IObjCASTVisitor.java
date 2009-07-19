@@ -10,6 +10,7 @@ package org.eclipse.cdt.objc.core.dom.ast.objc;
 
 import org.eclipse.cdt.core.dom.ast.ASTVisitor;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier.IObjCASTBaseSpecifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier.IObjCASTCategorySpecifier;
 
 /**
  * Interface for visitors to visit c-specific nodes.
@@ -19,13 +20,20 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier.IOb
 public interface IObjCASTVisitor {
 
     /**
-     * Visits a designator.
+     * Visits a base class specifier of a composite type.
      * 
-     * @return {@link ASTVisitor#PROCESS_CONTINUE},
-     *         {@link ASTVisitor#PROCESS_SKIP} or
+     * @return {@link ASTVisitor#PROCESS_CONTINUE} or
      *         {@link ASTVisitor#PROCESS_ABORT}
      */
-    int visit(IObjCASTDesignator designator);
+    int leave(IObjCASTBaseSpecifier baseSpecifier);
+
+    /**
+     * Visits a category specifier of a composite type.
+     * 
+     * @return {@link ASTVisitor#PROCESS_CONTINUE} or
+     *         {@link ASTVisitor#PROCESS_ABORT}
+     */
+    int leave(IObjCASTCategorySpecifier catSpecifier);
 
     /**
      * Visits a designator.
@@ -38,6 +46,14 @@ public interface IObjCASTVisitor {
     /**
      * Visits a base class specifier of a composite type.
      * 
+     * @return {@link ASTVisitor#PROCESS_CONTINUE} or
+     *         {@link ASTVisitor#PROCESS_ABORT}
+     */
+    int leave(IObjCASTPropertyAttribute attr);
+
+    /**
+     * Visits a base class specifier of a composite type.
+     * 
      * @return {@link ASTVisitor#PROCESS_CONTINUE},
      *         {@link ASTVisitor#PROCESS_SKIP} or
      *         {@link ASTVisitor#PROCESS_ABORT}
@@ -45,11 +61,30 @@ public interface IObjCASTVisitor {
     int visit(IObjCASTBaseSpecifier baseSpecifier);
 
     /**
-     * Visits a base class specifier of a composite type.
+     * Visits a category specifier of a composite type.
      * 
-     * @return {@link ASTVisitor#PROCESS_CONTINUE} or
+     * @return {@link ASTVisitor#PROCESS_CONTINUE},
+     *         {@link ASTVisitor#PROCESS_SKIP} or
      *         {@link ASTVisitor#PROCESS_ABORT}
      */
-    int leave(IObjCASTBaseSpecifier baseSpecifier);
+    int visit(IObjCASTCategorySpecifier categorySpecifier);
+
+    /**
+     * Visits a designator.
+     * 
+     * @return {@link ASTVisitor#PROCESS_CONTINUE},
+     *         {@link ASTVisitor#PROCESS_SKIP} or
+     *         {@link ASTVisitor#PROCESS_ABORT}
+     */
+    int visit(IObjCASTDesignator designator);
+
+    /**
+     * Visits a base class specifier of a composite type.
+     * 
+     * @return {@link ASTVisitor#PROCESS_CONTINUE},
+     *         {@link ASTVisitor#PROCESS_SKIP} or
+     *         {@link ASTVisitor#PROCESS_ABORT}
+     */
+    int visit(IObjCASTPropertyAttribute attr);
 
 }

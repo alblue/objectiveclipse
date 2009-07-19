@@ -30,19 +30,9 @@ public interface IObjCASTSimpleDeclSpecifier extends IASTSimpleDeclSpecifier, IO
     public static final int t_BOOL = IASTSimpleDeclSpecifier.t_last + 2;
 
     /**
-     * <code>t_SEL</code> selector. e.g. SEL x;
-     */
-    public static final int t_SEL = IASTSimpleDeclSpecifier.t_last + 3;
-
-    /**
      * <code>t_id</code> e.g. id x;
      */
     public static final int t_id = IASTSimpleDeclSpecifier.t_last + 4;
-
-    /**
-     * <code>t_Class</code> e.g. Class x;
-     */
-    public static final int t_Class = IASTSimpleDeclSpecifier.t_last + 5;
 
     /**
      * <code>t_IMP</code> e.g. IMP x;
@@ -55,6 +45,16 @@ public interface IObjCASTSimpleDeclSpecifier extends IASTSimpleDeclSpecifier, IO
     public static final int t_last = t_IMP;
 
     /**
+     * <code>t_SEL</code> selector. e.g. SEL x;
+     */
+    public static final int t_SEL = IASTSimpleDeclSpecifier.t_last + 3;
+
+    /**
+     * @since 5.1
+     */
+    public IObjCASTSimpleDeclSpecifier copy();
+
+    /**
      * Is complex number? e.g. _Complex t;
      * 
      * @return true if it is a complex number, false otherwise
@@ -62,27 +62,11 @@ public interface IObjCASTSimpleDeclSpecifier extends IASTSimpleDeclSpecifier, IO
     public boolean isComplex();
 
     /**
-     * Set the number to be complex.
-     * 
-     * @param value
-     *            true if it is a complex number, false otherwise
-     */
-    public void setComplex(boolean value);
-
-    /**
      * Is imaginary number? e.g. _Imaginr
      * 
      * @return true if it is an imaginary number, false otherwise
      */
     public boolean isImaginary();
-
-    /**
-     * Set the number to be imaginary.
-     * 
-     * @param value
-     *            true if it is an imaginary number, false otherwise
-     */
-    public void setImaginary(boolean value);
 
     // allow for long long's
     /**
@@ -93,16 +77,27 @@ public interface IObjCASTSimpleDeclSpecifier extends IASTSimpleDeclSpecifier, IO
     public boolean isLongLong();
 
     /**
+     * Set the number to be complex.
+     * 
+     * @param value
+     *            true if it is a complex number, false otherwise
+     */
+    public void setComplex(boolean value);
+
+    /**
+     * Set the number to be imaginary.
+     * 
+     * @param value
+     *            true if it is an imaginary number, false otherwise
+     */
+    public void setImaginary(boolean value);
+
+    /**
      * Set long long to be 'value'.
      * 
      * @param value
      *            boolean
      */
     public void setLongLong(boolean value);
-
-    /**
-     * @since 5.1
-     */
-    public IObjCASTSimpleDeclSpecifier copy();
 
 }

@@ -75,15 +75,20 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodDeclarator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodParameterDeclaration;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTOptionalityLabel;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPointer;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPropertyAttribute;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPropertyDeclaration;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPropertyImplementationDeclaration;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTProtocolIdExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTSelectorIdExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTSimpleDeclSpecifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTSynchronizedBlockStatement;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTTryBlockStatement;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTTypeIdInitializerExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTTypedefNameSpecifier;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTVisibilityLabel;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCNodeFactory;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier.IObjCASTBaseSpecifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier.IObjCASTCategorySpecifier;
 import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCASTKnRFunctionDeclarator;
 import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCGCCASTArrayRangeDesignator;
 import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCGCCASTSimpleDeclSpecifier;
@@ -154,6 +159,10 @@ public class ObjCNodeFactory implements IObjCNodeFactory {
 
     public IObjCASTCatchHandler newCatchHandler(IASTDeclaration decl, IASTStatement body) {
         return new ObjCASTCatchHandler(decl, body);
+    }
+
+    public IObjCASTCategorySpecifier newCategorySpecifier(IASTName name) {
+        return new ObjCASTCategorySpecifier(name);
     }
 
     public IObjCASTCompositeTypeSpecifier newCompositeTypeSpecifier(int key, IASTName name) {
@@ -345,6 +354,20 @@ public class ObjCNodeFactory implements IObjCNodeFactory {
         return new ObjCASTProblemStatement(problem);
     }
 
+    public IObjCASTPropertyAttribute newPropertyAttribute(int type) {
+        return new ObjCASTPropertyAttribute(type);
+    }
+
+    public IObjCASTPropertyDeclaration newPropertyDeclaration(IASTDeclSpecifier declSpecifier,
+            IASTDeclarator declarator) {
+        return new ObjCASTPropertyDeclaration(declSpecifier, declarator);
+    }
+
+    public IObjCASTPropertyImplementationDeclaration newPropertyImplementationDeclaration(
+            IASTDeclSpecifier declSpecifier) {
+        return new ObjCASTPropertyImplementationDeclaration(declSpecifier);
+    }
+
     public IObjCASTProtocolIdExpression newProtocolExpression(IASTName name) {
         return new ObjCASTProtocolIdExpression(name);
     }
@@ -369,8 +392,16 @@ public class ObjCNodeFactory implements IObjCNodeFactory {
         return new ObjCGCCASTSimpleDeclSpecifier(typeofExpression);
     }
 
+    public IObjCASTSimpleDeclSpecifier newSimplePropertyDeclSpecifier() {
+        return new ObjCASTSimplePropertyDeclSpecifier();
+    }
+
     public IASTSwitchStatement newSwitchStatement(IASTExpression controller, IASTStatement body) {
         return new ObjCASTSwitchStatement(controller, body);
+    }
+
+    public IObjCASTSynchronizedBlockStatement newSynchronizedStatement(IASTExpression obj, IASTStatement body) {
+        return new ObjCASTSynchronizedBlockStatement(obj, body);
     }
 
     public IASTTranslationUnit newTranslationUnit() {
@@ -381,6 +412,10 @@ public class ObjCNodeFactory implements IObjCNodeFactory {
 
     public IObjCASTTryBlockStatement newTryBlockStatement(IASTStatement body) {
         return new ObjCASTTryBlockStatement(body);
+    }
+
+    public IObjCASTTypedefNameSpecifier newTypedefNamePropertySpecifier(IASTName name) {
+        return new ObjCASTTypedefNamePropertySpecifier(name);
     }
 
     public IObjCASTTypedefNameSpecifier newTypedefNameSpecifier(IASTName name) {

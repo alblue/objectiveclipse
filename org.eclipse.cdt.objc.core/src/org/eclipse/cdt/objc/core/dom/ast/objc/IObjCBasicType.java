@@ -23,13 +23,11 @@ public interface IObjCBasicType extends IBasicType {
 
     public static final int t_BOOL = IObjCASTSimpleDeclSpecifier.t_BOOL;
 
-    public static final int t_SEL = IObjCASTSimpleDeclSpecifier.t_SEL;
-
     public static final int t_id = IObjCASTSimpleDeclSpecifier.t_id;
 
-    public static final int t_Class = IObjCASTSimpleDeclSpecifier.t_Class;
-
     public static final int t_IMP = IObjCASTSimpleDeclSpecifier.t_IMP;
+
+    public static final int t_SEL = IObjCASTSimpleDeclSpecifier.t_SEL;
 
     /**
      * Is complex number? e.g. _Complex t;

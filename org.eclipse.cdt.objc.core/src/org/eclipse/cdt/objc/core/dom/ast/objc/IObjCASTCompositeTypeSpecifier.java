@@ -79,6 +79,44 @@ public interface IObjCASTCompositeTypeSpecifier extends IASTCompositeTypeSpecifi
 
     }
 
+    public static interface IObjCASTCategorySpecifier extends IASTNode, IASTNameOwner {
+
+        /**
+         * Constant.
+         */
+        public static final IObjCASTCategorySpecifier[] EMPTY_CATEGORYSPECIFIER_ARRAY = new IObjCASTCategorySpecifier[0];
+
+        /**
+         * <code>NAME</code> is the name of the base class.
+         */
+        public static final ASTNodeProperty NAME = new ASTNodeProperty(
+                "IObjCASTBaseSpecifier.NAME - Name of category"); //$NON-NLS-1$
+
+        /**
+         * @since 5.1
+         */
+        public IObjCASTCategorySpecifier copy();
+
+        /**
+         * Get the name.
+         * 
+         * @return <code>IASTName</code>
+         */
+        public IASTName getName();
+
+        /**
+         * Set the name.
+         * 
+         * @param name
+         *            <code>IASTName</code>
+         */
+        public void setName(IASTName name);
+
+    }
+    
+    public static final ASTNodeProperty CAT_SPECIFIER = new ASTNodeProperty(
+    "IObjCASTCompositeTypeSpecifier.CAT_SPECIFIER - Expresses the category role"); //$NON-NLS-1$
+    
     /**
      * <code>BASE_SPECIFIER</code> is the base.
      */
@@ -116,5 +154,9 @@ public interface IObjCASTCompositeTypeSpecifier extends IASTCompositeTypeSpecifi
     public IObjCASTCompositeTypeSpecifier copy();
 
     public IObjCASTBaseSpecifier[] getBaseSpecifiers();
+    
+    public void setCategorySpecifier(IObjCASTCategorySpecifier cSpec);
+    
+    public IObjCASTCategorySpecifier getCategorySpecifier();
 
 }

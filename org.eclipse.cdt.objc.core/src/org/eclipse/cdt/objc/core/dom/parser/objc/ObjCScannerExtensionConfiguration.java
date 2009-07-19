@@ -69,6 +69,20 @@ public class ObjCScannerExtensionConfiguration extends GNUScannerExtensionConfig
         addKeyword(ObjCKeywords.cp_byref, IObjCToken.t_byref);
         addKeyword(ObjCKeywords.cp_oneway, IObjCToken.t_oneway);
 
+        addKeyword(ObjCKeywords.cp__weak, IObjCToken.t__weak);
+        addKeyword(ObjCKeywords.cp__strong, IObjCToken.t__strong);
+        addKeyword(ObjCKeywords.cp_AtProperty, IObjCToken.t_AtProperty);
+        addKeyword(ObjCKeywords.cp_IBOutlet, IObjCToken.t_IBOutlet);
+
+        addKeyword(ObjCKeywords.cp_getter, IObjCToken.t_getter);
+        addKeyword(ObjCKeywords.cp_setter, IObjCToken.t_setter);
+        addKeyword(ObjCKeywords.cp_readonly, IObjCToken.t_readonly);
+        addKeyword(ObjCKeywords.cp_readwrite, IObjCToken.t_readwrite);
+        addKeyword(ObjCKeywords.cp_assign, IObjCToken.t_assign);
+        addKeyword(ObjCKeywords.cp_retain, IObjCToken.t_retain);
+        addKeyword(ObjCKeywords.cp_copy, IObjCToken.t_copy);
+        addKeyword(ObjCKeywords.cp_nonatomic, IObjCToken.t_nonatomic);
+
         // Objective C literals - should these be macros?
         // <objc/objc.h> defines these macros */
         // addKeyword(ObjCKeywords.cp_nil, IObjCToken.t_nil);

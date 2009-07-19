@@ -38,5 +38,17 @@ public interface IObjCToken extends IGCCToken {
     public static final int t_AtFinally = FIRST_RESERVED_IGCCToken + 37;
     public static final int t_AtThrow = FIRST_RESERVED_IGCCToken + 38;
     public static final int t_AtRequired = FIRST_RESERVED_IGCCToken + 39;
-
+    public static final int t__weak = FIRST_RESERVED_IGCCToken + 40;
+    public static final int t__strong = FIRST_RESERVED_IGCCToken + 41;
+    public static final int t_AtProperty = FIRST_RESERVED_IGCCToken + 42;
+    public static final int t_IBOutlet = FIRST_RESERVED_IGCCToken + 43;
+    public static final int t_getter = FIRST_RESERVED_IGCCToken + 44;
+    public static final int t_setter = FIRST_RESERVED_IGCCToken + 45;
+    public static final int t_readwrite = FIRST_RESERVED_IGCCToken + 46;
+    public static final int t_readonly = FIRST_RESERVED_IGCCToken + 47;
+    public static final int t_assign = FIRST_RESERVED_IGCCToken + 48;
+    public static final int t_retain = FIRST_RESERVED_IGCCToken + 49;
+    public static final int t_copy = FIRST_RESERVED_IGCCToken + 50;
+    public static final int t_nonatomic = FIRST_RESERVED_IGCCToken + 51;
+    
 }
