@@ -48,8 +48,8 @@ public class ParseTest extends AbstractParseTest {
     @SuppressWarnings("nls")
     @Test
     public void testLink() {
-        // valid(parse("@protocol List @property id <List> next; @end"));
-        // valid(parse("@interface LinkedList : NSObject <List> { id <List> nextLinkedList;} @end"));
+        valid(parse("@protocol List @property id <List> next; @end"));
+        valid(parse("@interface LinkedList : NSObject <List> { id <List> nextLinkedList;} @end"));
         valid(parse("@implementation LinkedList @synthesize next = nextLinkedList; @end"));
     }
 
