@@ -51,6 +51,13 @@ public class ObjCASTTypedefNameSpecifier extends ObjCASTBaseDeclSpecifier implem
                 return false;
             }
         }
+
+        if (typeCheck != null) {
+            if (!typeCheck.accept(action)) {
+                return false;
+            }
+        }
+
         if (action.shouldVisitDeclSpecifiers) {
             switch (action.leave(this)) {
                 case ASTVisitor.PROCESS_ABORT:

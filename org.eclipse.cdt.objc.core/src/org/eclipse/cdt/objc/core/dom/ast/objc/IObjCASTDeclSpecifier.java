@@ -9,6 +9,7 @@
 package org.eclipse.cdt.objc.core.dom.ast.objc;
 
 import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
+import org.eclipse.cdt.core.dom.ast.IASTName;
 
 /**
  * C extension to IASTDeclSpecifier. (restrict keyword)
@@ -17,6 +18,8 @@ import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IObjCASTDeclSpecifier extends IASTDeclSpecifier {
+
+    public IASTName getTypeCheck();
 
     /**
      * Is bycopy keyword used?
@@ -129,5 +132,7 @@ public interface IObjCASTDeclSpecifier extends IASTDeclSpecifier {
      * @param value
      */
     public void setRestrict(boolean value);
+
+    public void setTypeCheck(IASTName conformsToProtocol);
 
 }

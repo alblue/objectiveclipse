@@ -69,8 +69,10 @@ public interface IObjCNodeFactory extends INodeFactory {
 
     public IObjCASTMethodDeclarator newMethodDeclarator(IASTName name);
 
-    public IObjCASTMethodParameterDeclaration newMethodParameterDeclaration(IASTName selector,
-            IASTDeclSpecifier declSpec, IASTDeclarator declarator);
+    public IObjCASTMethodName newMethodName();
+
+    public IObjCASTMethodParameterDeclaration newMethodParameterDeclaration(IASTDeclSpecifier declSpec,
+            IASTDeclarator declarator);
 
     public IObjCASTOptionalityLabel newOptionalityLabel(int optionality);
 

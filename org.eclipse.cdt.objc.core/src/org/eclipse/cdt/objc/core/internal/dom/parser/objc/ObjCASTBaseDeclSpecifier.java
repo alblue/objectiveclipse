@@ -8,6 +8,7 @@
  *******************************************************************************/
 package org.eclipse.cdt.objc.core.internal.dom.parser.objc;
 
+import org.eclipse.cdt.core.dom.ast.IASTName;
 import org.eclipse.cdt.internal.core.dom.parser.ASTNode;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTDeclSpecifier;
 
@@ -18,6 +19,7 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTDeclSpecifier;
 public abstract class ObjCASTBaseDeclSpecifier extends ASTNode implements IObjCASTDeclSpecifier {
 
     protected boolean isByCopy;
+
     protected boolean isByRef;
     protected boolean isConst;
     protected boolean isIn;
@@ -28,8 +30,8 @@ public abstract class ObjCASTBaseDeclSpecifier extends ASTNode implements IObjCA
     protected boolean isProtocol;
     protected boolean isRestrict;
     protected boolean isVolatile;
-
     protected int storageClass;
+    protected IASTName typeCheck;
 
     protected void copyBaseDeclSpec(ObjCASTBaseDeclSpecifier copy) {
         copy.storageClass = storageClass;
@@ -44,11 +46,16 @@ public abstract class ObjCASTBaseDeclSpecifier extends ASTNode implements IObjCA
         copy.isInOut = isInOut;
         copy.isByCopy = isByCopy;
         copy.isByRef = isByRef;
+        copy.setTypeCheck(typeCheck == null ? null : typeCheck.copy());
         copy.setOffsetAndLength(this);
     }
 
     public int getStorageClass() {
         return storageClass;
+    }
+
+    public IASTName getTypeCheck() {
+        return typeCheck;
     }
 
     public boolean isByCopy() {
@@ -145,9 +152,14 @@ public abstract class ObjCASTBaseDeclSpecifier extends ASTNode implements IObjCA
         isRestrict = value;
     }
 
-    public void setStorageClass(int storageClass) {
+    public void setStorageClass(int sc) {
         assertNotFrozen();
-        this.storageClass = storageClass;
+        storageClass = sc;
+    }
+
+    public void setTypeCheck(IASTName tc) {
+        assertNotFrozen();
+        typeCheck = tc;
     }
 
     public void setVolatile(boolean value) {

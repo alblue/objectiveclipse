@@ -40,6 +40,13 @@ public class ObjCASTSimpleDeclSpecifier extends ObjCASTBaseDeclSpecifier impleme
                     break;
             }
         }
+
+        if (typeCheck != null) {
+            if (!typeCheck.accept(action)) {
+                return false;
+            }
+        }
+
         if (action.shouldVisitDeclSpecifiers) {
             switch (action.leave(this)) {
                 case ASTVisitor.PROCESS_ABORT:

@@ -96,6 +96,7 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTDesignator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTElaboratedTypeSpecifier;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTFieldDesignator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodDeclarator;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodName;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTOptionalityLabel;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPointer;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPropertyAttribute;
@@ -126,14 +127,15 @@ import org.eclipse.cdt.objc.core.dom.parser.gnu.objc.IObjCGCCASTArrayRangeDesign
 public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
     private static final String AT = "@"; //$NON-NLS-1$
     private static final int CORRECT_END_TERMINATOR_INDEX = 0;
-
     private static final int DEFAULT_CATCH_HANDLER_LIST_SIZE = 4;
-    private static final int DEFAULT_PARAMETERS_LIST_SIZE = 4;
 
+    private static final int DEFAULT_PARAMETERS_LIST_SIZE = 4;
     private static final int DEFAULT_POINTEROPS_LIST_SIZE = 4;
+
     private final static int INLINE = 0x1, CONST = 0x2, RESTRICT = 0x4, VOLATILE = 0x8, SHORT = 0x10,
             UNSIGNED = 0x20, SIGNED = 0x40, COMPLEX = 0x80, IMAGINARY = 0x100, PROPERTY = 0x200,
             BYREF = 0x400, BYCOPY = 0x800, IN = 0x1000, OUT = 0x2000, INOUT = 0x4000, ONEWAY = 0x8000;
+
     private static final ASTVisitor MARK_INACTIVE = new ASTGenericVisitor(true) {
         {
             shouldVisitAmbiguousNodes = true;
@@ -502,7 +504,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
     }
 
     private IObjCASTTypedefNameSpecifier buildNamedTypeSpecifier(IASTName name, int storageClass,
-            int options, IObjCASTPropertyAttribute[] propertyAttributes, int offset, int endOffset) {
+            int options, IObjCASTPropertyAttribute[] propertyAttributes, IASTName conformsToProtocol,
+            int offset, int endOffset) {
         IObjCASTTypedefNameSpecifier declSpec;
         if ((options & PROPERTY) != 0) {
             declSpec = nodeFactory.newTypedefNamePropertySpecifier(name);
@@ -520,6 +523,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         declSpec.setOut((options & OUT) != 0);
         declSpec.setInOut((options & INOUT) != 0);
         declSpec.setOneWay((options & ONEWAY) != 0);
+        declSpec.setTypeCheck(conformsToProtocol);
         ((ASTNode) declSpec).setOffsetAndLength(offset, endOffset - offset);
         return declSpec;
     }
@@ -576,7 +580,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
     private IObjCASTSimpleDeclSpecifier buildSimpleDeclSpec(int storageClass, int simpleType, int options,
             int isLong, IASTExpression typeofExpression, IObjCASTPropertyAttribute[] propertyAttributes,
-            int offset, int endOffset) {
+            IASTName conformsToProtocol, int offset, int endOffset) {
         IObjCASTSimpleDeclSpecifier declSpec;
         if (typeofExpression != null) {
             declSpec = nodeFactory.newSimpleDeclSpecifierGCC(typeofExpression);
@@ -599,7 +603,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         declSpec.setShort((options & SHORT) != 0);
         declSpec.setComplex((options & COMPLEX) != 0);
         declSpec.setImaginary((options & IMAGINARY) != 0);
-
+        declSpec.setTypeCheck(conformsToProtocol);
         ((ASTNode) declSpec).setOffsetAndLength(offset, endOffset - offset);
         return declSpec;
     }
@@ -1454,6 +1458,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                         } else if (option2.fAllowMethods && option2.fIsImplementation) {
                             result = nodeFactory.newFunctionDeclarator(declaratorName);
                         }
+                        ((ASTNode) result).setOffsetAndLength((ASTNode) declaratorName);
                     }
                     break loop;
                 default:
@@ -1485,6 +1490,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         int isLong = 0;
 
         IASTName identifier = null;
+        IASTName conformsToProtocol = null;
         IASTDeclSpecifier result = null;
         IASTExpression typeofExpression = null;
         IASTProblem problem = null;
@@ -1597,7 +1603,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                     if (index != 0) {
                         throwBacktrack(LA(1));
                     }
-                    if (declOption.equals(ObjCDeclarationOptions.INTERFACE_LIST)) {
+                    if (declOption.equals(ObjCDeclarationOptions.INTERFACE_LIST)
+                            || declOption.equals(ObjCDeclarationOptions.PROTOCOL_LIST)) {
                         options |= PROPERTY;
                         endOffset = consume().getEndOffset();
                         IToken tmp = LA(1);
@@ -1932,11 +1939,11 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                         }
                     } catch (FoundAggregateInitializer e) {
                         e.fDeclSpec = buildSimpleDeclSpec(storageClass, simpleType, options, isLong,
-                                typeofExpression, propertyAttributes, offset, endOffset);
+                                typeofExpression, propertyAttributes, conformsToProtocol, offset, endOffset);
                         throw e;
                     } catch (FoundDeclaratorException e) {
                         e.declSpec = buildSimpleDeclSpec(storageClass, simpleType, options, isLong,
-                                typeofExpression, propertyAttributes, offset, endOffset);
+                                typeofExpression, propertyAttributes, conformsToProtocol, offset, endOffset);
 
                         IToken mark = mark();
                         try {
@@ -1946,7 +1953,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                             if (LA(1) == e.currToken) {
                                 e.altDeclarator = altDtor;
                                 e.altSpec = buildNamedTypeSpecifier(id, storageClass, options,
-                                        propertyAttributes, offset, calculateEndOffset(id));
+                                        propertyAttributes, conformsToProtocol, offset,
+                                        calculateEndOffset(id));
                             }
                         } catch (FoundAggregateInitializer lie) {
                             lie.fDeclSpec = e.declSpec;
@@ -2039,7 +2047,12 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                     break;
 
                 case IToken.tLT:
-                    if (encounteredRawType || encounteredTypename) {
+                    if (encounteredTypename) {
+                        consume();
+                        conformsToProtocol = identifier();
+                        endOffset = consume(IToken.tGT).getEndOffset();
+                        break;
+                    } else if (encounteredRawType) {
                         throwBacktrack(LA(1));
                     }
                     consume();
@@ -2088,12 +2101,12 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         }
 
         if (identifier != null) {
-            return buildNamedTypeSpecifier(identifier, storageClass, options, propertyAttributes, offset,
-                    endOffset);
+            return buildNamedTypeSpecifier(identifier, storageClass, options, propertyAttributes,
+                    conformsToProtocol, offset, endOffset);
         }
 
         return buildSimpleDeclSpec(storageClass, simpleType, options, isLong, typeofExpression,
-                propertyAttributes, offset, endOffset);
+                propertyAttributes, conformsToProtocol, offset, endOffset);
     }
 
     private List<? extends IObjCASTDesignator> designatorList() throws EndOfFileException, BacktrackException {
@@ -2522,6 +2535,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         List<IASTParameterDeclaration> parameters = null;
         final int startOffset = ((ASTNode) declaratorName).getOffset();
         int endOffset = startOffset + ((ASTNode) declaratorName).getLength();
+        IASTName newName = nodeFactory.newMethodName();
+        ((IObjCASTMethodName) newName).addSelector(declaratorName);
         IASTParameterDeclaration param = null;
         paramLoop: while (true) {
             IToken la1 = LA(1);
@@ -2550,18 +2565,20 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                     break paramLoop;
                 case IToken.tIDENTIFIER:
                     sName = identifier();
+                    ((IObjCASTMethodName) newName).addSelector(sName);
                     //$FALL-THROUGH$
                 case IToken.tCOLON:
                     if (parameters == null) {
                         parameters = new ArrayList<IASTParameterDeclaration>(DEFAULT_PARAMETERS_LIST_SIZE);
                     }
-                    param = methodParameterDeclaration(sName, ((ASTNode) sName).getOffset(), option);
+                    param = methodParameterDeclaration(option);
                     parameters.add(param);
                     endOffset = ((ASTNode) param).getOffset() + ((ASTNode) param).getLength();
                     break;
             }
         }
-        IASTStandardFunctionDeclarator fc = nodeFactory.newMethodDeclarator(null);
+        ((ASTNode) newName).setOffsetAndLength((ASTNode) declaratorName);
+        IASTStandardFunctionDeclarator fc = nodeFactory.newMethodDeclarator(newName);
         if (option instanceof ObjCDeclarationOptions
                 && ((ObjCDeclarationOptions) option).fAllowOptionalityLabel) {
             ((IObjCASTMethodDeclarator) fc).setProtocolMethod(true);
@@ -2576,23 +2593,21 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         return fc;
     }
 
-    private IASTParameterDeclaration methodParameterDeclaration(IASTName selectorName, int startOff,
-            DeclarationOptions option) throws BacktrackException, EndOfFileException {
-
+    private IASTParameterDeclaration methodParameterDeclaration(DeclarationOptions option)
+            throws BacktrackException, EndOfFileException {
         consume(IToken.tCOLON);
-
         final IToken current = LA(1);
+        int startOff = current.getOffset();
         IASTDeclSpecifier declSpec = null;
         IASTDeclarator declarator = null;
         IASTDeclSpecifier altDeclSpec = null;
         IASTDeclarator altDeclarator = null;
-
         try {
             if (current.getType() == IToken.tLPAREN) {
                 consume(IToken.tLPAREN);
                 declSpec = declSpecifierSeq(option);
             } else {
-                declSpec = declSpecifierSeq(option);
+                throwBacktrack(current);
             }
             declarator = declarator(option);
         } catch (FoundDeclaratorException fd) {
@@ -2607,13 +2622,12 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
         }
 
         final int length = figureEndOffset(declSpec, declarator) - startOff;
-        IASTParameterDeclaration result = nodeFactory.newMethodParameterDeclaration(selectorName, declSpec,
-                declarator);
+        IASTParameterDeclaration result = nodeFactory.newMethodParameterDeclaration(declSpec, declarator);
         ((ASTNode) result).setOffsetAndLength(startOff, length);
 
         if (altDeclarator != null && altDeclSpec != null) {
-            IASTParameterDeclaration alt = nodeFactory.newMethodParameterDeclaration(selectorName,
-                    altDeclSpec, altDeclarator);
+            IASTParameterDeclaration alt = nodeFactory.newMethodParameterDeclaration(altDeclSpec,
+                    altDeclarator);
             ((ASTNode) alt).setOffsetAndLength(startOff, length);
             // order is important, prefer alternative over the declarator found
             // via the lookahead.

@@ -8,8 +8,6 @@
  *******************************************************************************/
 package org.eclipse.cdt.objc.core.dom.ast.objc;
 
-import org.eclipse.cdt.core.dom.ast.ASTNodeProperty;
-import org.eclipse.cdt.core.dom.ast.IASTName;
 import org.eclipse.cdt.core.dom.ast.IASTParameterDeclaration;
 
 /**
@@ -23,20 +21,5 @@ public interface IObjCASTMethodParameterDeclaration extends IASTParameterDeclara
      * Constant/sentinel.
      */
     public static final IObjCASTMethodParameterDeclaration[] EMPTY_METHODPARAMETERDECLARATION_ARRAY = new IObjCASTMethodParameterDeclaration[0];
-
-    /**
-     * <code>DECLARATOR</code> represents the relationship between an
-     * <code>IASTParameterDeclaration</code> and its nested
-     * <code>IASTDeclarator</code>.
-     */
-    public static final ASTNodeProperty SELECTOR = new ASTNodeProperty(
-            "IObjCASTMethodParameterDeclaration.SELECTOR - IASTName for IObjCASTMethodParameterDeclaration"); //$NON-NLS-1$
-
-    /**
-     * Get the selector.
-     * 
-     * @return <code>IASTName</code>
-     */
-    public IASTName getSelector();
 
 }

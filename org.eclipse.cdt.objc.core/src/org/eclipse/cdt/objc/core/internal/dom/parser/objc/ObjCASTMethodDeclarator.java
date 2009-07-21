@@ -18,11 +18,9 @@ import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTParameterDeclaration;
 import org.eclipse.cdt.core.dom.ast.IScope;
 import org.eclipse.cdt.core.parser.util.ArrayUtil;
-import org.eclipse.cdt.internal.core.dom.parser.ASTNode;
 import org.eclipse.cdt.internal.core.dom.parser.ASTQueries;
 import org.eclipse.cdt.internal.core.dom.parser.IASTAmbiguityParent;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodDeclarator;
-import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodParameterDeclaration;
 
 /**
  * Models function declarators for plain c.
@@ -90,32 +88,6 @@ public class ObjCASTMethodDeclarator extends ObjCASTDeclarator implements IObjCA
             scope = new ObjCScope(this, EScopeKind.eLocal);
         }
         return scope;
-    }
-
-    @Override
-    public IASTName getName() {
-        int startOff = -1;
-        int endOff = -1;
-        StringBuilder builder = new StringBuilder();
-        if (parameters != null && parameters.length > 0) {
-            for (int i = 0; i < parameters.length; ++i) {
-                if (parameters[i] instanceof IObjCASTMethodParameterDeclaration) {
-                    IASTName selector = ((IObjCASTMethodParameterDeclaration) parameters[i]).getSelector();
-                    if (startOff < 0) {
-                        startOff = ((ASTNode) selector).getOffset();
-                    }
-                    endOff = ((ASTNode) selector).getOffset() + ((ASTNode) selector).getLength();
-                    builder.append(selector.getSimpleID());
-                    builder.append(":"); //$NON-NLS-1$
-                }
-            }
-        } else {
-            builder.append(super.getName().toCharArray());
-        }
-        String s = builder.toString();
-        IASTName name = new ObjCASTName(s.toCharArray());
-        ((ASTNode) name).setOffsetAndLength(startOff, endOff - startOff);
-        return name;
     }
 
     public IASTParameterDeclaration[] getParameters() {

@@ -12,7 +12,6 @@ package org.eclipse.cdt.objc.core.internal.dom.parser.objc;
 import org.eclipse.cdt.core.dom.ast.ASTVisitor;
 import org.eclipse.cdt.core.dom.ast.IASTDeclSpecifier;
 import org.eclipse.cdt.core.dom.ast.IASTDeclarator;
-import org.eclipse.cdt.core.dom.ast.IASTName;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.internal.core.dom.parser.ASTNode;
 import org.eclipse.cdt.internal.core.dom.parser.IASTAmbiguityParent;
@@ -27,14 +26,11 @@ public class ObjCASTMethodParameterDeclaration extends ASTNode implements IObjCA
 
     private IASTDeclarator declarator;
     private IASTDeclSpecifier declSpec;
-    private IASTName selector;
 
     public ObjCASTMethodParameterDeclaration() {
     }
 
-    public ObjCASTMethodParameterDeclaration(IASTName selector, IASTDeclSpecifier declSpec,
-            IASTDeclarator declarator) {
-        setSelector(selector);
+    public ObjCASTMethodParameterDeclaration(IASTDeclSpecifier declSpec, IASTDeclarator declarator) {
         setDeclSpecifier(declSpec);
         setDeclarator(declarator);
     }
@@ -49,12 +45,6 @@ public class ObjCASTMethodParameterDeclaration extends ASTNode implements IObjCA
                     return true;
                 default:
                     break;
-            }
-        }
-
-        if (selector != null) {
-            if (!selector.accept(action)) {
-                return false;
             }
         }
 
@@ -87,7 +77,6 @@ public class ObjCASTMethodParameterDeclaration extends ASTNode implements IObjCA
         ObjCASTMethodParameterDeclaration copy = new ObjCASTMethodParameterDeclaration();
         copy.setDeclSpecifier(declSpec == null ? null : declSpec.copy());
         copy.setDeclarator(declarator == null ? null : declarator.copy());
-        copy.setSelector(selector == null ? null : selector.copy());
         copy.setOffsetAndLength(this);
         return copy;
     }
@@ -98,10 +87,6 @@ public class ObjCASTMethodParameterDeclaration extends ASTNode implements IObjCA
 
     public IASTDeclSpecifier getDeclSpecifier() {
         return declSpec;
-    }
-
-    public IASTName getSelector() {
-        return selector;
     }
 
     public void replace(IASTNode child, IASTNode other) {
@@ -130,12 +115,4 @@ public class ObjCASTMethodParameterDeclaration extends ASTNode implements IObjCA
         }
     }
 
-    private void setSelector(IASTName selector) {
-        assertNotFrozen();
-        this.selector = selector;
-        if (selector != null) {
-            selector.setParent(this);
-            selector.setPropertyInParent(SELECTOR);
-        }
-    }
 }

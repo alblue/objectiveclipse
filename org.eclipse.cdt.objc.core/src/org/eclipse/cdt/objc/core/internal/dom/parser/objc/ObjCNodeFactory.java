@@ -72,6 +72,7 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTFieldDesignator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMessageExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMessageSelectorExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodDeclarator;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodName;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodParameterDeclaration;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTOptionalityLabel;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTPointer;
@@ -308,9 +309,13 @@ public class ObjCNodeFactory implements IObjCNodeFactory {
         return new ObjCASTMethodDeclarator(name);
     }
 
-    public IObjCASTMethodParameterDeclaration newMethodParameterDeclaration(IASTName selector,
-            IASTDeclSpecifier declSpec, IASTDeclarator declarator) {
-        return new ObjCASTMethodParameterDeclaration(selector, declSpec, declarator);
+    public IObjCASTMethodName newMethodName() {
+        return new ObjCASTMethodName();
+    }
+
+    public IObjCASTMethodParameterDeclaration newMethodParameterDeclaration(IASTDeclSpecifier declSpec,
+            IASTDeclarator declarator) {
+        return new ObjCASTMethodParameterDeclaration(declSpec, declarator);
     }
 
     public IASTName newName() {
