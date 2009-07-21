@@ -22,7 +22,8 @@ Import-Package: org.eclipse.cdt.core.dom,
  org.eclipse.cdt.internal.core.parser.scanner,
  org.eclipse.cdt.internal.core.pdom,
  org.eclipse.cdt.managedbuilder.makegen.gnu,
- org.eclipse.core.resources
+ org.eclipse.core.resources,
+ org.eclipse.text.edits
 Export-Package: org.eclipse.cdt.objc.core,
  org.eclipse.cdt.objc.core.dom.ast.objc,
  org.eclipse.cdt.objc.core.dom.parser.gnu.objc,
