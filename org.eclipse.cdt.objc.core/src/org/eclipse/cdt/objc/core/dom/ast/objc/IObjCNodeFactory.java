@@ -55,6 +55,8 @@ public interface IObjCNodeFactory extends INodeFactory {
 
     public IObjCASTEnumerationSpecifier newEnumerationSpecifier(IASTName name);
 
+    public IObjCASTFastEnumStatement newFastEnumStatement(IASTStatement s, IASTExpression e);
+
     public IObjCASTFieldDesignator newFieldDesignator(IASTName name);
 
     public IObjCASTKnRFunctionDeclarator newKnRFunctionDeclarator(IASTName[] parameterNames,
