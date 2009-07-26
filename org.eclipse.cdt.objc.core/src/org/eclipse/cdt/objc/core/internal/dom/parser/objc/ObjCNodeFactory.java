@@ -68,6 +68,7 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTDesignatedInitializer;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTElaboratedTypeSpecifier;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTEnumerationSpecifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTFastEnumStatement;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTFieldDesignator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMessageExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMessageSelectorExpression;
@@ -221,6 +222,10 @@ public class ObjCNodeFactory implements IObjCNodeFactory {
 
     public IASTExpressionStatement newExpressionStatement(IASTExpression expr) {
         return new ObjCASTExpressionStatement(expr);
+    }
+
+    public IObjCASTFastEnumStatement newFastEnumStatement(IASTStatement s, IASTExpression e) {
+        return new ObjCASTFastEnumStatement(s, e);
     }
 
     public IASTFieldDeclarator newFieldDeclarator(IASTName name, IASTExpression bitFieldSize) {
@@ -451,4 +456,5 @@ public class ObjCNodeFactory implements IObjCNodeFactory {
     public IASTWhileStatement newWhileStatement(IASTExpression condition, IASTStatement body) {
         return new ObjCASTWhileStatement(condition, body);
     }
+
 }
