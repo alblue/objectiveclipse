@@ -1,30 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-   <extension
-         point="org.eclipse.ui.newWizards">
-       <wizard
-             canFinishEarly="false"
-             category="org.eclipse.cdt.ui.newCWizards"
-             class="org.eclipse.cdt.objc.ui.wizards.ObjCProjectWizard"
-             finalPerspective="org.eclipse.cdt.ui.CPerspective"
-             hasPages="true"
-             icon="icons/etool16/newprjm_wiz.png"
-             id="org.eclipse.cdt.objc.ui.wizards.ObjCProjectWizard"
-             name="%objc.project.name"
-             project="true">
-         <description>
-             %objc.project.desc
+	<extension point="org.eclipse.ui.newWizards">
+		<wizard canFinishEarly="false" category="org.eclipse.cdt.ui.newCWizards"
+			class="org.eclipse.cdt.objc.ui.wizards.ObjCProjectWizard"
+			finalPerspective="org.eclipse.cdt.ui.CPerspective" hasPages="true"
+			icon="icons/etool16/newprjm_wiz.png" id="org.eclipse.cdt.objc.ui.wizards.ObjCProjectWizard"
+			name="%objc.project.name" project="true">
+			<description>
+				%objc.project.desc
          </description>
-      </wizard>
-   </extension>
-   <extension
-         point="org.eclipse.ui.ide.projectNatureImages">
-      <image
-            icon="icons/ovr16/m_ovr.png"
-            natureId="org.eclipse.cdt.objc.core.objcnature"
-            id="org.eclipse.cdt.objc.ui.ObjCProjectNatureImage">
-      </image>
-   </extension>
-
+		</wizard>
+	</extension>
+	<extension point="org.eclipse.ui.ide.projectNatureImages">
+		<image icon="icons/ovr16/m_ovr.png" natureId="org.eclipse.cdt.objc.core.objcnature"
+			id="org.eclipse.cdt.objc.ui.ObjCProjectNatureImage">
+		</image>
+	</extension>
+	<extension point="org.eclipse.ui.navigator.navigatorContent">
+		<navigatorContent activeByDefault="true"
+			contentProvider="org.eclipse.cdt.objc.ui.internal.cview.ObjCViewContentProvider"
+			icon="icons/view16/cview.gif" id="org.eclipse.cdt.ui.navigator.content"
+			labelProvider="org.eclipse.cdt.objc.ui.internal.cview.ObjCNavigatorLabelProvider"
+			name="%navigatorContent.name" priority="high">
+			<triggerPoints>
+					<and>
+						<instanceof value="org.eclipse.core.resources.IResource" />
+						<test property="org.eclipse.core.resources.projectNature"
+							value="org.eclipse.cdt.objc.core.objcnature" />
+					</and>
+			</triggerPoints>
+			<possibleChildren>
+					<instanceof value="org.eclipse.core.resources.IResource" />
+			</possibleChildren>
+			<override policy="InvokeAlwaysRegardlessOfSuppressedExt"
+				suppressedExtensionId="org.eclipse.ui.navigator.resourceContent" />
+			<commonSorter class="org.eclipse.cdt.ui.CElementSorter"
+				id="org.eclipse.cdt.ui.commonSorter">
+			</commonSorter>
+		</navigatorContent>
+	</extension>
 </plugin>
