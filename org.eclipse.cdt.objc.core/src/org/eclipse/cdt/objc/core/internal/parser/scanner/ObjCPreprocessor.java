@@ -60,6 +60,7 @@ import org.eclipse.core.runtime.IAdaptable;
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 public class ObjCPreprocessor implements ILexerLog, IScanner, IAdaptable {
     private interface IIncludeFileTester<T> {
         T checkFile(String path, String fileName, boolean isHeuristicMatch);
