@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.cdt.objc.core;
 
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
@@ -25,6 +28,17 @@ public class ObjCPlugin extends Plugin {
     // The plug-in ID
     public static final String PLUGIN_ID = "org.eclipse.cdt.objc.core"; //$NON-NLS-1$
 
+    private static ResourceBundle resourceBundle;
+
+    static {
+        try {
+            resourceBundle = ResourceBundle
+                    .getBundle("org.eclipse.cdt.objc.core.internal.ObjCPluginResources"); //$NON-NLS-1$
+        } catch (MissingResourceException x) {
+            resourceBundle = null;
+        }
+    }
+
     /**
      * Returns the shared instance
      * 
@@ -32,6 +46,14 @@ public class ObjCPlugin extends Plugin {
      */
     public static ObjCPlugin getDefault() {
         return plugin;
+    }
+
+    public static String getResourceString(String string) {
+        if (resourceBundle == null) {
+            return string;
+        } else {
+            return resourceBundle.getString(string);
+        }
     }
 
     /**
@@ -63,5 +85,4 @@ public class ObjCPlugin extends Plugin {
         plugin = null;
         super.stop(context);
     }
-
 }
