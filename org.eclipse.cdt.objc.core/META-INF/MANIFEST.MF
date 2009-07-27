@@ -28,5 +28,6 @@ Export-Package: org.eclipse.cdt.objc.core,
  org.eclipse.cdt.objc.core.dom.ast.objc,
  org.eclipse.cdt.objc.core.dom.parser.gnu.objc,
  org.eclipse.cdt.objc.core.dom.parser.objc,
+ org.eclipse.cdt.objc.core.internal.model,
  org.eclipse.cdt.objc.core.internal.dom.parser,
  org.eclipse.cdt.objc.core.internal.dom.parser.objc;x-friends:="org.eclipse.cdt.objc.core.tests"
