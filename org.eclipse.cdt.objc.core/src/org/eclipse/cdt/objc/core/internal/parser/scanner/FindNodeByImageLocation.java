@@ -28,6 +28,7 @@ import org.eclipse.cdt.internal.core.dom.parser.ASTNodeSpecification;
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 public class FindNodeByImageLocation extends CPPASTVisitor implements ICASTVisitor {
     private final int fLength;
     private final ASTNodeSpecification<?> fNodeSpec;

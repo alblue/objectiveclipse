@@ -13,6 +13,7 @@ import org.eclipse.cdt.core.parser.OffsetLimitReachedException;
 import org.eclipse.cdt.internal.core.dom.Linkage;
 import org.eclipse.cdt.internal.core.parser.scanner.Lexer.LexerOptions;
 
+@SuppressWarnings("restriction")
 final class DateMacro extends DynamicMacro {
     DateMacro(char[] name) {
         super(name);
@@ -43,6 +44,7 @@ final class DateMacro extends DynamicMacro {
     }
 }
 
+@SuppressWarnings("restriction")
 abstract class DynamicMacro extends PreprocessorMacro {
 
     public DynamicMacro(char[] name) {
@@ -208,6 +210,7 @@ final class LineMacro extends DynamicMacro {
     }
 }
 
+@SuppressWarnings("restriction")
 class ObjectStyleMacro extends PreprocessorMacro {
     final int fEndOffset;
     private final char[] fExpansion;
@@ -286,6 +289,7 @@ class ObjectStyleMacro extends PreprocessorMacro {
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 abstract class PreprocessorMacro implements IMacroBinding {
     final private char[] fName;
 

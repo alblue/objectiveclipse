@@ -14,6 +14,7 @@ import org.eclipse.cdt.core.dom.ast.IBinding;
 import org.eclipse.cdt.core.dom.ast.IMacroBinding;
 import org.eclipse.cdt.internal.core.dom.Linkage;
 
+@SuppressWarnings("restriction")
 class ASTBuiltinName extends ASTPreprocessorDefinition {
     private final IASTFileLocation fFileLocation;
 
@@ -58,6 +59,7 @@ class ASTBuiltinName extends ASTPreprocessorDefinition {
     }
 }
 
+@SuppressWarnings("restriction")
 class ASTMacroReferenceName extends ASTPreprocessorName {
     private final ImageLocationInfo fImageLocationInfo;
 
@@ -116,6 +118,7 @@ class ASTPreprocessorDefinition extends ASTPreprocessorName {
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 class ASTPreprocessorName extends ASTPreprocessorNode implements IASTName {
     private final IBinding fBinding;
     private final char[] fName;

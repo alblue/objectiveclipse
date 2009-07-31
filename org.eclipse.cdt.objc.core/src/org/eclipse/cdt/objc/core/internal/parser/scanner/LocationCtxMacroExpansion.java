@@ -12,6 +12,7 @@ import org.eclipse.cdt.core.dom.ast.IMacroBinding;
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 class LocationCtxMacroExpansion extends LocationCtx {
     private final ASTMacroReferenceName fExpansionName;
     private final int fLength;

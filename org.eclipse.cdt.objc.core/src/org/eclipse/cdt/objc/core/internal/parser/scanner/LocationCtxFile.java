@@ -10,6 +10,7 @@ import org.eclipse.cdt.core.dom.ast.IASTPreprocessorMacroExpansion;
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 class LocationCtxFile extends LocationCtxContainer {
     private final ASTInclusionStatement fASTInclude;
     private final String fFilename;

@@ -22,6 +22,7 @@ import org.eclipse.cdt.objc.core.internal.parser.scanner.MacroDefinitionParser.T
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 public class MacroExpander {
     private static final class AbortMacroExpansionException extends Exception {
     }

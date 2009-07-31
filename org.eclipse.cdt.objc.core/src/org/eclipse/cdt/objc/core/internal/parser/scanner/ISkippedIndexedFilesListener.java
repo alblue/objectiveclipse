@@ -7,6 +7,7 @@ import org.eclipse.cdt.internal.core.parser.scanner.IncludeFileContent;
  * Interface to listen for information about files skipped by the preprocessor,
  * because they are found in the index
  */
+@SuppressWarnings("restriction")
 public interface ISkippedIndexedFilesListener {
 
     /**

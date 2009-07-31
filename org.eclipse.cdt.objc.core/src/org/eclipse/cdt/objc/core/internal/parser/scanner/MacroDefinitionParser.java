@@ -15,6 +15,7 @@ import org.eclipse.cdt.internal.core.parser.scanner.Lexer.LexerOptions;
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 public class MacroDefinitionParser {
     /**
      * Exception for reporting problems while parsing a macro definition.
