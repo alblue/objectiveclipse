@@ -10,7 +10,7 @@ import org.eclipse.cdt.core.parser.IProblem;
  */
 public interface ILexerLog {
     ILexerLog NULL = new ILexerLog() {
-        public void handleComment(boolean isBlockComment, int offset, int endOffset) {
+        public void handleComment(boolean isBlockComment, int offset, int endOffset, boolean isHeaderDoc) {
         }
 
         public void handleProblem(int problemID, char[] info, int offset, int endOffset) {
@@ -29,8 +29,10 @@ public interface ILexerLog {
      *            the offset where the comment starts
      * @param endOffset
      *            the offset where the comment ends
+     * @param isHeaderDoc
+     *            if the comment is in HeaderDoc format
      */
-    void handleComment(boolean isBlockComment, int offset, int endOffset);
+    void handleComment(boolean isBlockComment, int offset, int endOffset, boolean isHeaderDoc);
 
     /**
      * A problem has been detected

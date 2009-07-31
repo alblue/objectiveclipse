@@ -1,14 +1,29 @@
 package org.eclipse.cdt.objc.core.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.cdt.core.dom.ast.IASTComment;
 import org.eclipse.cdt.core.dom.ast.IASTDeclaration;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IASTHeaderDocComment;
 import org.eclipse.cdt.objc.core.internal.dom.parser.objc.ObjCASTProblemDeclaration;
 import org.eclipse.cdt.objc.core.internal.dom.parser.objc.ObjCASTSimpleDeclaration;
 import org.junit.Test;
 
 public class ParseTest extends AbstractParseTest {
+    @SuppressWarnings("nls")
+    @Test
+    public void testComment() {
+        IASTTranslationUnit a;
+        valid(a = parse("// SingleLine\n/* Block *//*! HeaderDoc */"));
+        IASTComment[] comments = a.getComments();
+        assertTrue(comments.length == 3);
+        for (int i = 0; i < comments.length; i++) {
+            assertEquals(i == 2, comments[i] instanceof IASTHeaderDocComment);
+        }
+    }
+
     @SuppressWarnings("nls")
     @Test
     public void testDuplicate() {

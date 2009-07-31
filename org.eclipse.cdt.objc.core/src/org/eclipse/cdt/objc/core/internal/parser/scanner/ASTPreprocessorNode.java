@@ -36,7 +36,9 @@ import org.eclipse.cdt.core.parser.util.CharArrayUtils;
 import org.eclipse.cdt.internal.core.dom.parser.ASTNode;
 import org.eclipse.cdt.internal.core.dom.parser.ASTNodeSpecification;
 import org.eclipse.cdt.internal.core.parser.scanner.ILocationResolver;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IASTHeaderDocComment;
 
+@SuppressWarnings("restriction")
 class ASTComment extends ASTPreprocessorNode implements IASTComment {
     private final boolean fIsBlockComment;
 
@@ -58,6 +60,7 @@ class ASTComment extends ASTPreprocessorNode implements IASTComment {
     }
 }
 
+@SuppressWarnings("restriction")
 abstract class ASTDirectiveWithCondition extends ASTPreprocessorNode {
     private final boolean fActive;
     private final int fConditionOffset;
@@ -264,6 +267,19 @@ class ASTFunctionStyleMacroDefinition extends ASTMacroDefinition implements
     }
 }
 
+class ASTHeaderDocComment extends ASTComment implements IASTHeaderDocComment {
+
+    public ASTHeaderDocComment(IASTTranslationUnit parent, int startNumber, int endNumber,
+            boolean isBlockComment) {
+        super(parent, startNumber, endNumber, isBlockComment);
+    }
+
+    public String getValue(String tag) {
+        // TODO Implement
+        return null;
+    }
+}
+
 class ASTIf extends ASTDirectiveWithCondition implements IASTPreprocessorIfStatement {
     public ASTIf(IASTTranslationUnit parent, int startNumber, int condNumber, int condEndNumber,
             boolean active) {
@@ -354,6 +370,7 @@ class ASTInclusionNode implements IASTInclusionNode {
     }
 }
 
+@SuppressWarnings("restriction")
 class ASTInclusionStatement extends ASTPreprocessorNode implements IASTPreprocessorIncludeStatement {
     private final boolean fFoundByHeuristics;
     private final boolean fIsResolved;
@@ -403,6 +420,7 @@ class ASTInclusionStatement extends ASTPreprocessorNode implements IASTPreproces
     }
 }
 
+@SuppressWarnings("restriction")
 class ASTMacroDefinition extends ASTPreprocessorNode implements IASTPreprocessorObjectStyleMacroDefinition {
     private final boolean fActive;
     private final int fExpansionNumber;
@@ -648,6 +666,7 @@ class ASTPragma extends ASTDirectiveWithCondition implements IASTPreprocessorPra
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 abstract class ASTPreprocessorNode extends ASTNode {
     public ASTPreprocessorNode(IASTNode parent, ASTNodeProperty property, int startNumber, int endNumber) {
         setParent(parent);
@@ -697,6 +716,7 @@ abstract class ASTPreprocessorNode extends ASTNode {
     }
 }
 
+@SuppressWarnings("restriction")
 class ASTUndef extends ASTPreprocessorNode implements IASTPreprocessorUndefStatement {
     private final ASTPreprocessorName fName;
 

@@ -20,9 +20,9 @@ import org.eclipse.cdt.core.parser.ParserLanguage;
 import org.eclipse.cdt.core.parser.ParserMode;
 import org.eclipse.cdt.core.parser.ParserUtil;
 import org.eclipse.cdt.internal.core.dom.parser.c.CVisitor;
-import org.eclipse.cdt.internal.core.parser.scanner.CPreprocessor;
 import org.eclipse.cdt.objc.core.dom.parser.objc.ObjCScannerExtensionConfiguration;
 import org.eclipse.cdt.objc.core.internal.dom.parser.objc.GNUObjCSourceParser;
+import org.eclipse.cdt.objc.core.internal.parser.scanner.ObjCPreprocessor;
 
 public abstract class AbstractParseTest {
 
@@ -61,7 +61,8 @@ public abstract class AbstractParseTest {
         final IParserLogService log = new NullLogService();
         final IScannerExtensionConfiguration configuration = ObjCScannerExtensionConfiguration.getInstance();
         final ICodeReaderFactory readerFactory = null;
-        final IScanner scanner = new CPreprocessor(reader, info, language, log, configuration, readerFactory);
+        final IScanner scanner = new ObjCPreprocessor(reader, info, language, log, configuration,
+                readerFactory);
         final GNUObjCSourceParser parser = new GNUObjCSourceParser(scanner, ParserMode.COMPLETE_PARSE,
                 ParserUtil.getParserLogService(), new GCCParserExtensionConfiguration());
         final IASTTranslationUnit ast = parser.parse();

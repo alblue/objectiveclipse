@@ -11,15 +11,16 @@ import org.eclipse.cdt.internal.core.util.MementoTokenizer;
 import org.eclipse.cdt.objc.core.model.IFramework;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 
 @SuppressWarnings("restriction")
 public class Framework extends Openable implements IFramework {
 
     private static IResource getFrameworkCalled(String name) {
         // TODO This should handle other types in the future
-        Path path = new Path("/System/Library/Frameworks/" + name + ".framework");
-        return (IResource) path.toFile();
+        // Path path = new Path("/System/Library/Frameworks/" + name +
+        // ".framework");
+        // return (IResource) path.toFile();
+        return null;
     }
 
     public Framework(ICElement parent, String name) {

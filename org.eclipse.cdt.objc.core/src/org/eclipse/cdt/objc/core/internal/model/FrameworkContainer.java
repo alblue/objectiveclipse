@@ -22,7 +22,7 @@ public class FrameworkContainer extends Openable implements IFrameworkContainer 
                 ObjCPlugin.getResourceString("FrameworkContainer.Frameworks"), ICElement.C_VCONTAINER); //$NON-NLS-1$
         try {
             for (IFramework framework : getFrameworks()) {
-                addChild(framework);
+                // addChild(framework);
             }
         } catch (CModelException e) {
             // TODO Auto-generated catch block

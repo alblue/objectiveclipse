@@ -43,6 +43,7 @@ import org.eclipse.cdt.internal.core.parser.scanner.Lexer.LexerOptions;
  * 
  * @since 5.0
  */
+@SuppressWarnings("restriction")
 public class LocationMap implements ILocationResolver {
     private static final IASTName[] EMPTY_NAMES = {};
 
@@ -119,10 +120,14 @@ public class LocationMap implements ILocationResolver {
                 macro, null);
     }
 
-    public void encounteredComment(int offset, int endOffset, boolean isBlockComment) {
+    public void encounteredComment(int offset, int endOffset, boolean isBlockComment, boolean isHeaderDoc) {
         offset = getSequenceNumberForOffset(offset);
         endOffset = getSequenceNumberForOffset(endOffset);
-        fComments.add(new ASTComment(fTranslationUnit, offset, endOffset, isBlockComment));
+        if (isHeaderDoc) {
+            fComments.add(new ASTHeaderDocComment(fTranslationUnit, offset, endOffset, isBlockComment));
+        } else {
+            fComments.add(new ASTComment(fTranslationUnit, offset, endOffset, isBlockComment));
+        }
     }
 
     /**
