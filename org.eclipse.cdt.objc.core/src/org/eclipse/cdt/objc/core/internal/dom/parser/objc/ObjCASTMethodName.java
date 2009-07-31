@@ -10,7 +10,6 @@
 package org.eclipse.cdt.objc.core.internal.dom.parser.objc;
 
 import org.eclipse.cdt.core.dom.ast.ASTVisitor;
-import org.eclipse.cdt.core.dom.ast.IASTCompletionContext;
 import org.eclipse.cdt.core.dom.ast.IASTName;
 import org.eclipse.cdt.core.dom.ast.IASTNameOwner;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
@@ -27,7 +26,7 @@ import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTMethodName;
  */
 
 @SuppressWarnings("restriction")
-public class ObjCASTMethodName extends ObjCASTName implements IObjCASTMethodName, IASTCompletionContext {
+public class ObjCASTMethodName extends ObjCASTName implements IObjCASTMethodName {
 
     private IASTName[] names = null;
     private int namesPos = -1;
