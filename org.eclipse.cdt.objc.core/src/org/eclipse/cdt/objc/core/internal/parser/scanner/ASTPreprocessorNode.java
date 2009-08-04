@@ -36,7 +36,6 @@ import org.eclipse.cdt.core.parser.util.CharArrayUtils;
 import org.eclipse.cdt.internal.core.dom.parser.ASTNode;
 import org.eclipse.cdt.internal.core.dom.parser.ASTNodeSpecification;
 import org.eclipse.cdt.internal.core.parser.scanner.ILocationResolver;
-import org.eclipse.cdt.objc.core.dom.ast.objc.IASTHeaderDocComment;
 
 @SuppressWarnings("restriction")
 class ASTComment extends ASTPreprocessorNode implements IASTComment {
@@ -264,19 +263,6 @@ class ASTFunctionStyleMacroDefinition extends ASTMacroDefinition implements
         result.append('=');
         result.append(getExpansion());
         return result.toString();
-    }
-}
-
-class ASTHeaderDocComment extends ASTComment implements IASTHeaderDocComment {
-
-    public ASTHeaderDocComment(IASTTranslationUnit parent, int startNumber, int endNumber,
-            boolean isBlockComment) {
-        super(parent, startNumber, endNumber, isBlockComment);
-    }
-
-    public String getValue(String tag) {
-        // TODO Implement
-        return null;
     }
 }
 

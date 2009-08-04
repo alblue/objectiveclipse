@@ -120,14 +120,10 @@ public class LocationMap implements ILocationResolver {
                 macro, null);
     }
 
-    public void encounteredComment(int offset, int endOffset, boolean isBlockComment, boolean isHeaderDoc) {
+    public void encounteredComment(int offset, int endOffset, boolean isBlockComment) {
         offset = getSequenceNumberForOffset(offset);
         endOffset = getSequenceNumberForOffset(endOffset);
-        if (isHeaderDoc) {
-            fComments.add(new ASTHeaderDocComment(fTranslationUnit, offset, endOffset, isBlockComment));
-        } else {
-            fComments.add(new ASTComment(fTranslationUnit, offset, endOffset, isBlockComment));
-        }
+        fComments.add(new ASTComment(fTranslationUnit, offset, endOffset, isBlockComment));
     }
 
     /**

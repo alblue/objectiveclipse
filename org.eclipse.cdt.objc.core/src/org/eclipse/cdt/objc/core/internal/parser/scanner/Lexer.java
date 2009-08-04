@@ -83,20 +83,19 @@ final public class Lexer implements ITokenSequence {
         // we can ignore line-splices, trigraphs and windows newlines when
         // searching for the '*'
         int pos = fEndOffset;
-        boolean headerDoc = pos < fLimit && fInput[pos] == '!';
         while (pos < fLimit) {
             if (fInput[pos++] == trigger) {
                 fEndOffset = pos;
                 if (nextCharPhase3() == '/') {
                     nextCharPhase3();
-                    fLog.handleComment(true, start, fOffset, headerDoc);
+                    fLog.handleComment(true, start, fOffset);
                     return;
                 }
             }
         }
         fCharPhase3 = END_OF_INPUT;
         fOffset = fEndOffset = pos;
-        fLog.handleComment(true, start, pos, headerDoc);
+        fLog.handleComment(true, start, pos);
     }
 
     @SuppressWarnings("fallthrough")
@@ -899,7 +898,7 @@ final public class Lexer implements ITokenSequence {
             switch (c) {
                 case END_OF_INPUT:
                 case '\n':
-                    fLog.handleComment(false, start, fOffset, false);
+                    fLog.handleComment(false, start, fOffset);
                     return;
             }
             c = nextCharPhase3();

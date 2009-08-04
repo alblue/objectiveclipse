@@ -1247,8 +1247,8 @@ public class ObjCPreprocessor implements ILexerLog, IScanner, IAdaptable {
         return scannerCtx.consumeLine(ORIGIN_PREPROCESSOR_DIRECTIVE);
     }
 
-    public void handleComment(boolean isBlockComment, int offset, int endOffset, boolean isHeaderDoc) {
-        fLocationMap.encounteredComment(offset, endOffset, isBlockComment, isHeaderDoc);
+    public void handleComment(boolean isBlockComment, int offset, int endOffset) {
+        fLocationMap.encounteredComment(offset, endOffset, isBlockComment);
     }
 
     private void handlePreIncludedFiles() {
