@@ -19,19 +19,18 @@
 	</extension>
 	<extension point="org.eclipse.ui.navigator.navigatorContent">
 		<navigatorContent activeByDefault="true"
-			contentProvider="org.eclipse.cdt.objc.ui.internal.cview.ObjCViewContentProvider"
-			icon="icons/view16/cview.gif" id="org.eclipse.cdt.ui.navigator.content"
+			contentProvider="org.eclipse.cdt.objc.ui.internal.cview.ObjCViewContentProvider" id="org.eclipse.cdt.ui.navigator.content"
 			labelProvider="org.eclipse.cdt.objc.ui.internal.cview.ObjCNavigatorLabelProvider"
-			name="%navigatorContent.name" priority="high">
+			name="%objc.navigator.content.name" priority="high">
 			<triggerPoints>
-					<and>
-						<instanceof value="org.eclipse.core.resources.IResource" />
-						<test property="org.eclipse.core.resources.projectNature"
-							value="org.eclipse.cdt.objc.core.objcnature" />
-					</and>
+				<and>
+					<instanceof value="org.eclipse.core.resources.IResource" />
+					<test property="org.eclipse.core.resources.projectNature"
+						value="org.eclipse.cdt.objc.core.objcnature" />
+				</and>
 			</triggerPoints>
 			<possibleChildren>
-					<instanceof value="org.eclipse.core.resources.IResource" />
+				<instanceof value="org.eclipse.core.resources.IResource" />
 			</possibleChildren>
 			<override policy="InvokeAlwaysRegardlessOfSuppressedExt"
 				suppressedExtensionId="org.eclipse.ui.navigator.resourceContent" />
@@ -40,4 +39,14 @@
 			</commonSorter>
 		</navigatorContent>
 	</extension>
+	<extension point="org.eclipse.core.runtime.preferences">
+		<initializer class="org.eclipse.cdt.objc.ui.text.doctools.headerdoc.HeaderDocHelper" />
+	</extension>
+	<extension point="org.eclipse.cdt.ui.DocCommentOwner">
+		<owner id="org.eclipse.cdt.objc.ui.headerdoc" name="%objc.headerdoc.name"
+			multiline="org.eclipse.cdt.objc.ui.text.doctools.headerdoc.HeaderDocMultilineConfiguration"
+			singleline="org.eclipse.cdt.objc.ui.text.doctools.headerdoc.HeaderDocSingleConfiguration">
+		</owner>
+	</extension>
+
 </plugin>
