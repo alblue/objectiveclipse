@@ -116,8 +116,6 @@ public class HeaderDocMultilineAutoEditStrategy extends DefaultMultilineCommentA
 
             IRegion prefix = findPrefixRange(doc, line);
             String indentation = doc.get(prefix.getOffset(), prefix.getLength());
-            int lengthToAdd = Math.min(offset - prefix.getOffset(), prefix.getLength());
-            buf.append(indentation.substring(0, lengthToAdd));
 
             if (shouldCloseMultiline(doc, c.offset)) {
                 try {
@@ -149,14 +147,22 @@ public class HeaderDocMultilineAutoEditStrategy extends DefaultMultilineCommentA
                 } catch (BadLocationException ble) {
                     ble.printStackTrace();
                 }
+                c.shiftsCaret = false;
+                c.text = buf.toString();
+                int newOffset = offset(c.text, new String[] { "@abstract", "@description" }); //$NON-NLS-1$ //$NON-NLS-2$
+                if (newOffset == -1) {
+                    newOffset = indentation.length();
+                }
+                c.caretOffset = c.offset + newOffset;
+            } else {
+                // buf.append('\n');
+                buf.append(indentation);
+                if (!indentation.endsWith(MULTILINE_MID)) {
+                    buf.append(MULTILINE_MID);
+                }
+                c.text = buf.toString();
             }
-            c.shiftsCaret = false;
-            c.text = buf.toString();
-            int newOffset = offset(c.text, new String[] { "@abstract", "@description" }); //$NON-NLS-1$ //$NON-NLS-2$
-            if (newOffset == -1) {
-                newOffset = (indentation).length() - 1;
-            }
-            c.caretOffset = c.offset + newOffset;
+
         } catch (BadLocationException excp) {
             // stop work
         }
