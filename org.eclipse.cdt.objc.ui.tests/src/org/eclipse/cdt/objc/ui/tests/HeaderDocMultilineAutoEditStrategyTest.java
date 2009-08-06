@@ -38,10 +38,8 @@ public class HeaderDocMultilineAutoEditStrategyTest extends AbstractParseTest {
         }
     }
 
-    @Test
-    public void testHeaderDoc() throws BadLocationException {
-        // TODO Extend this with more test cases
-        HDMAESTest a = new HDMAESTest("/*!", ""); //$NON-NLS-1$ //$NON-NLS-2$
+    private void executeCheck(String prefix, String postfix, String expected) throws BadLocationException {
+        HDMAESTest a = new HDMAESTest(prefix, postfix);
         CommandTest c = new CommandTest();
         IDocument document = a.getDocument();
         c.text = "\n"; //$NON-NLS-1$
@@ -52,6 +50,27 @@ public class HeaderDocMultilineAutoEditStrategyTest extends AbstractParseTest {
         c.doit = true;
         a.customizeDocumentAfterNewLine(document, c);
         document.replace(c.offset, c.length, c.text);
-        assertEquals("/*!\n */", document.get()); //$NON-NLS-1$
+        assertEquals(expected, document.get());
+    }
+
+    @SuppressWarnings("nls")
+    @Test
+    public void testHeaderDoc() throws BadLocationException {
+        // No indent, simple start
+        executeCheck("/*!", "", "/*!\n */");
+        // Indent, simple start
+        executeCheck("  /*!", "", "  /*!\n   */");
+        // No indent, additional
+        executeCheck("/*!\n * ", "\n */", "/*!\n * \n * \n */");
+        // Indent, additional
+        executeCheck("  /*!\n   * ", "\n   */", "  /*!\n   * \n   * \n   */");
+        // No indent, additional
+        executeCheck("/*!\n * Foo bar blurb", "\n */", "/*!\n * Foo bar blurb\n * \n */");
+        // Indent, additional
+        executeCheck("  /*!\n   * Foo bar blurb", "\n   */", "  /*!\n   * Foo bar blurb\n   * \n   */");
+        // Auto-generate header output
+        final String func = "NSString* foo(NSString* a, NSString* b) { }\n";
+        // TODO Investigate why this doesn't generate @function stuff
+        executeCheck("/*!", "\n" + func, "/*!\n */\n" + func);
     }
 }
