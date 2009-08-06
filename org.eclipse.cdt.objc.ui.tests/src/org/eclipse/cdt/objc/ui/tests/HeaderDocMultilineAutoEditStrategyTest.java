@@ -18,23 +18,23 @@ public class HeaderDocMultilineAutoEditStrategyTest extends AbstractParseTest {
     }
 
     class HDMAESTest extends HeaderDocMultilineAutoEditStrategy {
-        private final String document;
+        private final IDocument document;
         private final String postfix;
         private final String prefix;
 
         public HDMAESTest(String prefix, String postfix) {
             this.prefix = prefix;
             this.postfix = postfix;
-            document = this.prefix + this.postfix;
+            document = new Document(this.prefix + this.postfix);
         }
 
         @Override
         public IASTTranslationUnit getAST() {
-            return parse(document);
+            return parse(document.get());
         }
 
         public IDocument getDocument() {
-            return new Document(document);
+            return document;
         }
     }
 
@@ -48,6 +48,7 @@ public class HeaderDocMultilineAutoEditStrategyTest extends AbstractParseTest {
         c.caretOffset = -1;
         c.owner = null;
         c.doit = true;
+        c.shiftsCaret = true;
         a.customizeDocumentAfterNewLine(document, c);
         document.replace(c.offset, c.length, c.text);
         assertEquals(expected, document.get());
@@ -70,7 +71,12 @@ public class HeaderDocMultilineAutoEditStrategyTest extends AbstractParseTest {
         executeCheck("  /*!\n   * Foo bar blurb", "\n   */", "  /*!\n   * Foo bar blurb\n   * \n   */");
         // Auto-generate header output
         final String func = "NSString* foo(NSString* a, NSString* b) { }\n";
-        // TODO Investigate why this doesn't generate @function stuff
-        executeCheck("/*!", "\n" + func, "/*!\n */\n" + func);
+        executeCheck("/*!", "\n" + func, "/*!\n" + " * @function foo\n" + " * @abstract \n" + " * @param a\n"
+                + " * @param b\n" + " * @return\n" + " * @description \n */\n" + func);
+        final String method = "+(NSString*) foo:(NSString*) a with:(NSString*) b { }\n@end";
+        executeCheck("@implementation Foo\n/*!", "\n" + method, "@implementation Foo\n/*!\n"
+                + " * @method foo:with:\n" + " * @abstract \n" + " * @param a\n" + " * @param b\n"
+                + " * @return\n" + " * @description \n" + " */\n" + method);
+
     }
 }
