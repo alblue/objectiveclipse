@@ -83,6 +83,8 @@ public class ObjCScannerExtensionConfiguration extends GNUScannerExtensionConfig
         addKeyword(ObjCKeywords.cp_copy, IObjCToken.t_copy);
         addKeyword(ObjCKeywords.cp_nonatomic, IObjCToken.t_nonatomic);
 
+        addKeyword(ObjCKeywords.cp__block, IObjCToken.t__block);
+
         // Objective C literals - should these be macros?
         // <objc/objc.h> defines these macros */
         // addKeyword(ObjCKeywords.cp_nil, IObjCToken.t_nil);

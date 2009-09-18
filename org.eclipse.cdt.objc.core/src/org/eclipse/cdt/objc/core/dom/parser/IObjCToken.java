@@ -50,5 +50,6 @@ public interface IObjCToken extends IGCCToken {
     public static final int t_retain = FIRST_RESERVED_IGCCToken + 49;
     public static final int t_copy = FIRST_RESERVED_IGCCToken + 50;
     public static final int t_nonatomic = FIRST_RESERVED_IGCCToken + 51;
+    public static final int t__block = FIRST_RESERVED_IGCCToken + 52;
     
 }

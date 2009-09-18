@@ -62,6 +62,7 @@ import org.eclipse.cdt.core.dom.ast.IASTEnumerationSpecifier.IASTEnumerator;
 import org.eclipse.cdt.core.dom.ast.gnu.IGNUASTCompoundStatementExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTArrayDesignator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTArrayModifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTBlockExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCatchHandler;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTClassMemoryLayoutDeclaration;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier;
@@ -142,6 +143,10 @@ public class ObjCNodeFactory implements IObjCNodeFactory {
 
     public IASTBinaryExpression newBinaryExpression(int op, IASTExpression expr1, IASTExpression expr2) {
         return new ObjCASTBinaryExpression(op, expr1, expr2);
+    }
+
+    public IObjCASTBlockExpression newBlockClosureExpression() {
+        return new ObjCASTBlockExpression();
     }
 
     public IASTBreakStatement newBreakStatement() {
@@ -456,5 +461,4 @@ public class ObjCNodeFactory implements IObjCNodeFactory {
     public IASTWhileStatement newWhileStatement(IASTExpression condition, IASTStatement body) {
         return new ObjCASTWhileStatement(condition, body);
     }
-
 }

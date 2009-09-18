@@ -19,6 +19,8 @@ import org.eclipse.cdt.core.dom.ast.IASTName;
  */
 public interface IObjCASTDeclSpecifier extends IASTDeclSpecifier {
 
+    public static final int sc__block = sc_last + 1;
+
     public IASTName getTypeCheck();
 
     /**

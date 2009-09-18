@@ -43,6 +43,8 @@ public interface IObjCNodeFactory extends INodeFactory {
 
     public IObjCASTBaseSpecifier newBaseSpecifier(IASTName name, boolean isProtocol);
 
+    public IObjCASTBlockExpression newBlockClosureExpression();
+
     public IObjCASTCatchHandler newCatchHandler(IASTDeclaration decl, IASTStatement body);
 
     public IObjCASTCategorySpecifier newCategorySpecifier(IASTName name);

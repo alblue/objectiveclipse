@@ -1,6 +1,7 @@
 package org.eclipse.cdt.objc.core.dom.parser;
 
 public class ObjCKeywords {
+    public static final char[] cp__block = "__block".toCharArray();//$NON-NLS-1$
     public static final char[] cp__strong = "__strong".toCharArray(); //$NON-NLS-1$ 
     //    public static final char[] cp_SEL = "SEL".toCharArray(); //$NON-NLS-1$
     //    public static final char[] cp_BOOL = "BOOL".toCharArray(); //$NON-NLS-1$

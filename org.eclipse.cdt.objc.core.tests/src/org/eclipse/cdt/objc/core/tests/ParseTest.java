@@ -12,6 +12,32 @@ public class ParseTest extends AbstractParseTest {
 
     @SuppressWarnings("nls")
     @Test
+    public void testBlocks() {
+        valid(parse("void (^my_block)(void);"));
+        valid(parse("my_block = ^(void){ printf(\"Hello World!\"); };"));
+        valid(parse("void (^my_block)(void) = ^{ printf(\"Hello World!\"); }; int main() { my_block(); }"));
+        valid(parse("typedef void (^my_block)(void); my_block block = ^{ printf(\"Hello World!\"); }; int main() { block(); }"));
+        valid(parse("int (^my_block)(void); int main() { my_block = ^{ printf(\"Hello World!\"); }; }"));
+        valid(parse("int (^my_block)(int, int); int main() { my_block = ^(int x, int y){ plot(x, y); }; }"));
+        valid(parse("typedef void (^blockWithString)(char*);\n" + "int main() { \n"
+                + "char *greeting = \"hello\";\n"
+                + "blockWithString b = ^(char* place){ printf(\"%s %s\\n\", greeting, place); };\n"
+                + "greeting = \"goodbye\";\n" + "b(“world”);\n" + " }"));
+        valid(parse("typedef void (^blockWithString)(char*);\n" + "int main() { \n"
+                + "__block char *mutable_greeting = \"hello\";\n"
+                + "blockWithString c = ^{ mutable_greeting = \"goodbye\"; };\n"
+                + "printf(\"%s\", mutable_greeting);\n" + "c();\n" + "printf(\"%s\", mutable_greeting);\n"
+                + " }"));
+        valid(parse("void (*my_block)(int i, int j);"));
+        valid(parse("void (^my_block)(int i, int j);"));
+        invalid(parse("my_block = ^(void) printf(\"Hello World!\"); "));
+        invalid(parse("my_block = ^(void) { printf(\"Hello World!\"); "));
+        invalid(parse("my_block = ^ printf(\"Hello World!\"); "));
+        invalid(parse("my_block = ^ { printf(\"Hello World!\"); "));
+    }
+
+    @SuppressWarnings("nls")
+    @Test
     public void testDuplicate() {
         IASTTranslationUnit a;
         valid(parse("@interface Foo {} @end @interface Bar {} @end"));
@@ -89,4 +115,5 @@ public class ParseTest extends AbstractParseTest {
     public void testSynthesize() {
         valid(parse("@implementation SynthTest  @synthesize up, down, left = right; @end"));
     }
+
 }

@@ -88,9 +88,11 @@ import org.eclipse.cdt.internal.core.dom.parser.IASTAmbiguousExpression;
 import org.eclipse.cdt.internal.core.dom.parser.IASTAmbiguousStatement;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTArrayDesignator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTArrayModifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTBlockExpression;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCatchHandler;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTClassMemoryLayoutDeclaration;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTCompositeTypeSpecifier;
+import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTDeclSpecifier;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTDesignatedInitializer;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTDesignator;
 import org.eclipse.cdt.objc.core.dom.ast.objc.IObjCASTElaboratedTypeSpecifier;
@@ -298,6 +300,35 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
         ((ASTNode) d).setOffsetAndLength(start, endOffset - start);
         return d;
+    }
+
+    protected IASTExpression buildBlockExpression() throws EndOfFileException, BacktrackException {
+        IObjCASTBlockExpression ex = null;
+        consume(IToken.tXOR);
+        try {
+            IASTParameterDeclaration[] parameters = IASTParameterDeclaration.EMPTY_PARAMETERDECLARATION_ARRAY;
+            fPreventKnrCheck++;
+            if (LT(1) != IToken.tLBRACE) {
+                /*
+                 * We'll reuse the functionDeclarator() method to parse the
+                 * parameter list, then discard the declarator and keep the
+                 * parameters
+                 */
+                IASTDeclarator decl = functionDeclarator(DeclarationOptions.PARAMETER);
+                if (decl instanceof IASTStandardFunctionDeclarator) {
+                    parameters = ((IASTStandardFunctionDeclarator) decl).getParameters();
+                }
+            }
+            IASTStatement s = handleFunctionBody();
+            ex = nodeFactory.newBlockClosureExpression();
+            ex.setBody(s);
+            for (IASTParameterDeclaration pd : parameters) {
+                ex.addParameterDeclaration(pd);
+            }
+        } finally {
+            fPreventKnrCheck--;
+        }
+        return ex;
     }
 
     public IObjCASTCompositeTypeSpecifier buildCompositeImplementationDeclSpec(IASTName name)
@@ -700,6 +731,7 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
     protected IASTInitializer cInitializerClause(boolean inAggregate) throws EndOfFileException,
             BacktrackException {
+
         final int offset = LA(1).getOffset();
         if (LT(1) != IToken.tLBRACE) {
             IASTExpression assignmentExpression = assignmentExpression();
@@ -862,6 +894,23 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
             ((ASTNode) arrayMod).setOffsetAndLength(startOffset, lastOffset - startOffset);
             arrayMods.add(arrayMod);
         }
+    }
+
+    /**
+     * Parse a Block XOR Operator.
+     */
+    protected void consumeBlockOperator(List<IASTPointerOperator> blockOps) throws EndOfFileException,
+            BacktrackException {
+        IToken mark = mark();
+        if (LT(1) != IToken.tXOR) {
+            backup(mark);
+            return;
+        }
+        IToken last = consume();
+        int startOffset = mark.getOffset();
+        IObjCASTPointer blockPtr = nodeFactory.newPointer();
+        ((ASTNode) blockPtr).setOffsetAndLength(startOffset, last.getEndOffset() - startOffset);
+        blockOps.add(blockPtr);
     }
 
     /**
@@ -1206,8 +1255,14 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
 
         List<IASTPointerOperator> pointerOps = new ArrayList<IASTPointerOperator>(
                 DEFAULT_POINTEROPS_LIST_SIZE);
-        consumePointerOperators(pointerOps);
-        if (!pointerOps.isEmpty()) {
+
+        consumeBlockOperator(pointerOps);
+        if (pointerOps.isEmpty()) {
+            consumePointerOperators(pointerOps);
+            if (!pointerOps.isEmpty()) {
+                endOffset = calculateEndOffset(pointerOps.get(pointerOps.size() - 1));
+            }
+        } else {
             endOffset = calculateEndOffset(pointerOps.get(pointerOps.size() - 1));
         }
 
@@ -1591,6 +1646,11 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                 case IObjCToken.t__weak:
                     options |= PROPERTY;
                     storageClass = IObjCASTPropertyDeclSpecifier.sc__weak;
+                    endOffset = consume().getEndOffset();
+                    break;
+
+                case IObjCToken.t__block:
+                    storageClass = IObjCASTDeclSpecifier.sc__block;
                     endOffset = consume().getEndOffset();
                     break;
 
@@ -3129,6 +3189,8 @@ public class GNUObjCSourceParser extends AbstractGNUSourceCodeParser {
                         finalOffset);
             case IToken.tLBRACKET:
                 return buildMessageExpression();
+            case IToken.tXOR:
+                return buildBlockExpression();
             case IToken.tIDENTIFIER:
                 t = LA(1);
                 if (AT.equals(t.getImage()) && LT(2) == IToken.tSTRING) {
