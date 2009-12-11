@@ -50,6 +50,48 @@
 				<listOptionValue value="Foundation" />
 			</option>
 		</tool>
+		<tool id="cdt.managedbuild.tool.linux.objc.linker" name="%objc.linker.name"
+			superClass="cdt.managedbuild.tool.gnu.c.linker">
+			<optionCategory owner="cdt.managedbuild.tool.linux.objc.linker"
+				name="%objc.frameworks.name" id="cdt.managedbuild.tool.linux.objc.linker.frameworks">
+			</optionCategory>
+			<option name="%objc.frameworks.name"
+				category="cdt.managedbuild.tool.linux.objc.linker.frameworks"
+				command="-L${VALUE}" id="cdt.managedbuild.tool.linux.objc.linker.framework"
+				valueType="stringList">
+				<listOptionValue value="/usr/GNUstep/Local/Library/Libraries" />
+				<listOptionValue value="/usr/share/GNUstep/Libraries" />
+			</option>
+			<optionCategory
+				id="cdt.managedbuild.tool.linux.objc.linker.gnustepbases" name="GNUstep base"
+				owner="cdt.managedbuild.tool.linux.objc.linker">
+			</optionCategory>
+			<option category="cdt.managedbuild.tool.linux.objc.linker.gnustepbases"
+				command="-l${VALUE}" id="cdt.managedbuild.tool.linux.objc.linker.gnustepbase"
+				name="GNUstep base" valueType="stringList">
+				<listOptionValue value="gnustep-base">
+				</listOptionValue>
+			</option>
+			<optionCategory id="cdt.managedbuild.tool.linux.objc.linker.objcs"
+				name="OBJC" owner="cdt.managedbuild.tool.linux.objc.linker">
+			</optionCategory>
+			<option category="cdt.managedbuild.tool.linux.objc.linker.objcs"
+				command="-l${VALUE}" id="cdt.managedbuild.tool.linux.objc.linker.objc"
+				name="OBJC" valueType="stringList">
+				<listOptionValue value="objc">
+				</listOptionValue>
+			</option>
+			<optionCategory id="cdt.managedbuild.tool.linux.objc.linker.gnustepguis"
+				name="GNUstep gui" owner="cdt.managedbuild.tool.linux.objc.linker">
+			</optionCategory>
+			<option category="cdt.managedbuild.tool.linux.objc.linker.gnustepguis"
+				command="-l${VALUE}" id="cdt.managedbuild.tool.linux.objc.linker.gnustepgui"
+				name="GNUstep gui" valueType="stringList">
+				<listOptionValue value="gnustep-gui">
+				</listOptionValue>
+			</option>
+
+		</tool>
 		<!-- natureFilter="objcnature" -->
 		<tool id="cdt.managedbuild.tool.macosx.objc.compiler" name="%objc.compiler.name"
 			superClass="cdt.managedbuild.tool.gnu.c.compiler">
@@ -61,6 +103,42 @@
 				scannerConfigDiscoveryProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC|org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile"
 				languageId="org.eclipse.cdt.core.gcc">
 			</inputType>
+		</tool>
+		<tool id="cdt.managedbuild.tool.linux.objc.compiler" name="%objc.compiler.name"
+			superClass="cdt.managedbuild.tool.gnu.c.compiler">
+			<inputType sourceContentType="org.eclipse.cdt.objc.core.objcSource"
+				sources="m" dependencyContentType="org.eclipse.cdt.core.objcHeader"
+				dependencyExtensions="h"
+				dependencyCalculator="org.eclipse.cdt.managedbuilder.makegen.gnu.DefaultGCCDependencyCalculator2"
+				id="cdt.managedbuild.tool.linux.objc.compiler.input"
+				scannerConfigDiscoveryProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC|org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile"
+				languageId="org.eclipse.cdt.core.gcc">
+			</inputType>
+			<optionCategory
+				id="cdt.managedbuild.tool.linux.objc.compiler.constantstringclasses"
+				name="ConstantStringClass" owner="cdt.managedbuild.tool.linux.objc.compiler">
+			</optionCategory>
+			<option
+				category="cdt.managedbuild.tool.linux.objc.compiler.constantstringclasses"
+				command="-f${VALUE}"
+				id="cdt.managedbuild.tool.linux.objc.compiler.constantstringclass"
+				name="ConstantStringClass" valueType="stringList">
+				<listOptionValue value="constant-string-class=NSConstantString">
+				</listOptionValue>
+			</option>
+			<optionCategory
+				id="cdt.managedbuild.tool.linux.objc.compiler.includepaths" name="IncludePath"
+				owner="cdt.managedbuild.tool.linux.objc.compiler">
+			</optionCategory>
+			<option category="cdt.managedbuild.tool.linux.objc.compiler.includepaths"
+				command="-I${VALUE}" id="cdt.managedbuild.tool.linux.objc.compiler.includepath"
+				name="IncludePath" valueType="stringList">
+				<listOptionValue value="/usr/GNUstep/Local/Library/Headers">
+				</listOptionValue>
+				<listOptionValue value="/usr/include/GNUstep">
+				</listOptionValue>
+			</option>
+
 		</tool>
 		<toolChain archList="all" osList="macosx" name="%objc.tool.name"
 			targetTool="cdt.managedbuild.tool.macosx.c.linker.macosx.base;cdt.managedbuild.tool.macosx.objc.linker.macosx.base;cdt.managedbuild.tool.macosx.objc.compiler.macosx.base;cdt.managedbuild.tool.gnu.assembler.macosx.base;cdt.managedbuild.tool.gnu.archiver.macosx.base"
@@ -86,6 +164,32 @@
 			</tool>
 			<tool id="cdt.managedbuild.tool.macosx.objc.compiler.macosx.base"
 				superClass="cdt.managedbuild.tool.macosx.objc.compiler">
+			</tool>
+		</toolChain>
+		<toolChain archList="all" osList="linux" name="%objc.tool.name"
+			targetTool="cdt.managedbuild.tool.linux.c.linker.linux.base;cdt.managedbuild.tool.linux.objc.linker.linux.base;cdt.managedbuild.tool.linux.objc.compiler.linux.base;cdt.managedbuild.tool.gnu.assembler.linux.base;cdt.managedbuild.tool.gnu.archiver.linux.base"
+			id="cdt.managedbuild.toolchain.gnu.objc.linux.base">
+			<targetPlatform id="cdt.managedbuild.target.gnu.objc.platform.linux.base"
+				name="%PlatformName.Dbg" binaryParser="org.eclipse.cdt.core.ELF"
+				osList="linux" archList="all">
+			</targetPlatform>
+			<builder superClass="cdt.managedbuild.target.gnu.builder"
+				id="cdt.managedbuild.target.gnu.builder.objc.linux.base">
+			</builder>
+			<tool id="cdt.managedbuild.tool.linux.objc.linker.linux.base"
+				superClass="cdt.managedbuild.tool.linux.objc.linker">
+				<enablement type="CMD_USAGE">
+					<not>
+						<checkBuildProperty property="org.eclipse.cdt.build.core.buildArtefactType"
+							value="org.eclipse.cdt.build.core.buildArtefactType.staticLib" />
+					</not>
+				</enablement>
+			</tool>
+			<tool id="cdt.managedbuild.tool.gnu.assembler.linux.base.2"
+				superClass="cdt.managedbuild.tool.gnu.assembler">
+			</tool>
+			<tool id="cdt.managedbuild.tool.linux.objc.compiler.linux.base"
+				superClass="cdt.managedbuild.tool.linux.objc.compiler">
 			</tool>
 		</toolChain>
 		<projectType isAbstract="false" isTest="false"
@@ -122,16 +226,53 @@
 				</toolChain>
 			</configuration>
 		</projectType>
+		<projectType isAbstract="false" isTest="false"
+			buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe"
+			id="objc.cdt.managedbuild.target.gnu.linux.exe">
+			<configuration name="Debug"
+				id="objc.cdt.managedbuild.config.gnu.linux.exe.debug"
+				buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug"
+				parent="cdt.managedbuild.config.gnu.base" cleanCommand="rm -rf">
+				<toolChain superClass="cdt.managedbuild.toolchain.gnu.objc.linux.base"
+					id="cdt.managedbuild.toolchain.gnu.obj.linux.exe.debug">
+					<targetPlatform
+						id="objc.cdt.managedbuild.target.gnu.obj.platform.linux.exe.debug"
+						superClass="cdt.managedbuild.target.gnu.objc.platform.linux.base">
+					</targetPlatform>
+					<builder superClass="cdt.managedbuild.target.gnu.builder.objc.linux.base"
+						id="objc.cdt.managedbuild.target.gnu.obj.builder.linux.exe.debug">
+					</builder>
+				</toolChain>
+			</configuration>
+			<configuration name="Release"
+				id="objc.cdt.managedbuild.config.gnu.linux.exe.release"
+				buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release"
+				parent="cdt.managedbuild.config.gnu.base" cleanCommand="rm -rf">
+				<toolChain superClass="cdt.managedbuild.toolchain.gnu.objc.linux.base"
+					id="cdt.managedbuild.toolchain.gnu.objc.linux.release">
+					<targetPlatform
+						id="cdt.managedbuild.target.gnu.objc.platform.linux.exe.release"
+						superClass="cdt.managedbuild.target.gnu.objc.platform.linux.base">
+					</targetPlatform>
+					<builder superClass="cdt.managedbuild.target.gnu.builder.objc.linux.base"
+						id="cdt.managedbuild.target.gnu.objc.builder.linux.exe.release">
+					</builder>
+				</toolChain>
+			</configuration>
+		</projectType>
 	</extension>
 	<extension point="org.eclipse.cdt.core.templateAssociations">
 		<template id="org.eclipse.cdt.build.core.templates.objc.helloworld">
 			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.macosx.base" />
+			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.linux.base" />
 		</template>
 		<template id="org.eclipse.cdt.build.core.templates.objc.mt">
 			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.macosx.base" />
+			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.linux.base" />
 		</template>
 		<template id="org.eclipse.cdt.build.core.templates.EmptyProject">
 			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.macosx.base" />
+			<toolChain id="cdt.managedbuild.toolchain.gnu.objc.linux.base" />
 		</template>
 	</extension>
 	<extension point="org.eclipse.cdt.core.templates">
